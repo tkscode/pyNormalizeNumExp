@@ -12,6 +12,7 @@ keywords = ["python", "NLP", "NormalizeNumExp"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+typing-extensions = "3.10.0.2"
 
 [tool.poetry.dev-dependencies]
 autopep8 = {version = "1.5.7"}

@@ -1,0 +1,2 @@
+class NormalizerUtility(object):
+    pass

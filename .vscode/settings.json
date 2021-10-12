@@ -17,6 +17,7 @@
     "**/.coverage": true,
     "**/.cov": true,
     "**/mypy_cache": true,
+    "**/.pytest_cache": true,
     "**/__pycache__": true,
     "**/CVS": true,
     "**/.DS_Store": true,
@@ -28,6 +29,7 @@
     "**/node_modules/*/**": true,
     "**/.hg/store/**": true,
     "**/.venv/**": true,
+    "**/.pytest_cache": true,
     "**/.cov/**": true
   },
   "python.formatting.provider": "autopep8",
@@ -39,7 +41,7 @@
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": [],
   "python.testing.autoTestDiscoverOnSaveEnabled": false,
-  "python.pythonPath": ".venv/bin/python",
+  "python.defaultInterpreterPath": ".venv/bin/python",
   "python.linting.ignorePatterns": [
     "**/site-packages/**/*.py",
     ".vscode/*.py",

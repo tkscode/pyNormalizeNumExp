@@ -1,14 +1,16 @@
+"""各種表現パターンクラスの定義モジュール."""
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Final, List, Optional, Union
 
-from pynormalizenumexp.utility import PLACE_HOLDER
-
-
-INF = float("inf")
+# 定数定義
+INF: Final[float] = float("inf")
+PLACE_HOLDER: Final[str] = "ǂ"
 
 
 class NotationType(Enum):
+    """数値表現の列挙クラス."""
+
     NOT_NUMBER = 0
     KANSUJI_09 = 1
     KANSUJI_KURAI_SEN = 2
@@ -20,6 +22,8 @@ class NotationType(Enum):
 
 
 class BaseExpression(object):
+    """各種表現の基底クラス."""
+
     original_expr: str
     position_start: int
     position_end: int
@@ -29,6 +33,8 @@ class BaseExpression(object):
 
 
 class LimitedExpression(BaseExpression):
+    """狭義の各種表現の基底クラス."""
+
     ordinary: bool
     option: str
     # patternが含むPLACE_HOLDERの数（*月*日 -> 2個）
@@ -38,30 +44,57 @@ class LimitedExpression(BaseExpression):
     len_of_after_final_place_holder: int
 
     def set_total_number_of_place_holder(self):
+        """パターン文字列中に出現したPlace holderをカウント."""
         self.total_number_of_place_holder = self.pattern.count(PLACE_HOLDER)
 
     def set_len_of_after_final_place_holder(self):
-        try:
-            idx = self.pattern.index(PLACE_HOLDER)
+        """パターン文字列中にPlace holderが最後に出現した位置より後のパターン文字列の長さを取得."""
+        idx = self.pattern.rfind(PLACE_HOLDER)
+        if idx > -1:
             self.len_of_after_final_place_holder = len(self.pattern[idx:])
-        except ValueError:
-            # PLACE_HOLDERがない場合はindex関数の仕様によりValueErrorが発生する
+        else:
             self.len_of_after_final_place_holder = len(self.pattern)
 
 
 class NNumber(BaseExpression):
+    """任意の数値表現のクラス."""
+
     def __init__(self, original_expr: str = "", position_start: int = -1, position_end: int = -1) -> None:
+        """コンスタラクタ.
+
+        Parameters
+        ----------
+        original_expr : str, optional
+            数値表現文字列, by default ""
+        position_start : int, optional
+            表現の開始位置, by default -1
+        position_end : int, optional
+            表現の終了位置, by default -1
+        """
         self.original_expr = original_expr
         self.position_start = position_start
         self.position_end = position_end
 
         self.value_lower_bound: float = INF
         self.value_upper_bound: float = -INF
-        self.notation_type: List[NotationType] = []
+        self.notation_type: List[int] = []
 
 
 class NormalizedExpression(BaseExpression):
+    """各種正規化表現の基底クラス."""
+
     def __init__(self, original_expr: str, position_start: int, position_end: int) -> None:
+        """コンスタラクタ.
+
+        Parameters
+        ----------
+        original_expr : str
+            正規化表現文字列
+        position_start : int
+            表現の開始位置
+        position_end : int
+            表現の終了位置
+        """
         self.original_expr = original_expr
         self.position_start = position_start
         self.position_end = position_end
@@ -75,6 +108,13 @@ class NormalizedExpression(BaseExpression):
         self.options: List[str] = []
 
     def set_original_expr_from_position(self, text: str) -> None:
+        """与えられたテキストから開始・終了位置を使って表現を抽出する.
+
+        Parameters
+        ----------
+        text : str
+            抽出対象のテキスト
+        """
         if len(text) < self.position_end:
             return
 
