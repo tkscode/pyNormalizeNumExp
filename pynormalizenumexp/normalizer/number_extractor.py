@@ -18,7 +18,7 @@ class NumberExtractor(object):
     """数値表現の抽出クラス."""
 
     def __init__(self, digit_utility: DigitUtility) -> None:
-        """コンスタラクタ.
+        """コンストラクタ.
 
         Parameters
         ----------

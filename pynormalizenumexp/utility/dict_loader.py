@@ -17,7 +17,7 @@ class DictLoader(object):
     """辞書ファイルの読み込み定義クラス."""
 
     def __init__(self, language: str) -> None:
-        """コンスタラクタ.
+        """コンストラクタ.
 
         Parameters
         ----------

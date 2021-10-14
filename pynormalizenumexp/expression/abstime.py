@@ -9,7 +9,7 @@ class AbstimeExpression(NormalizedExpression):
     """絶対時間の表現クラス."""
 
     def __init__(self, number: NNumber):
-        """コンスタラクタ.
+        """コンストラクタ.
 
         Parameters
         ----------

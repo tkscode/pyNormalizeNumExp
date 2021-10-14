@@ -60,7 +60,7 @@ class NNumber(BaseExpression):
     """任意の数値表現のクラス."""
 
     def __init__(self, original_expr: str = "", position_start: int = -1, position_end: int = -1) -> None:
-        """コンスタラクタ.
+        """コンストラクタ.
 
         Parameters
         ----------
@@ -84,7 +84,7 @@ class NormalizedExpression(BaseExpression):
     """各種正規化表現の基底クラス."""
 
     def __init__(self, original_expr: str, position_start: int, position_end: int) -> None:
-        """コンスタラクタ.
+        """コンストラクタ.
 
         Parameters
         ----------

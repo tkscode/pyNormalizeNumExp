@@ -18,3 +18,15 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         self.prefix_counters = self.dict_loader.load_limited_abstime_expr_dict(prefix_counter_dict_file)
         self.prefix_number_modifier = self.dict_loader.load_number_modifier_dict(prefix_number_modifier_dict_file)
         self.suffix_number_modifier = self.dict_loader.load_number_modifier_dict(suffix_number_modifier_dict_file)
+
+    def revise_any_expr_by_limited_expression(self):
+        pass
+
+    def revise_any_expr_by_prefix_counter(self):
+        pass
+
+    def delete_not_any_expr(self):
+        pass
+
+    def fix_by_range_expression(self):
+        pass

@@ -21,7 +21,7 @@ class DigitUtility(object):
     """文字列処理用クラス."""
 
     def __init__(self, dict_loader: DictLoader) -> None:
-        """コンスタラクタ.
+        """コンストラクタ.
 
         Parameters
         ----------
@@ -203,7 +203,7 @@ class DigitUtility(object):
         Returns
         -------
         bool
-            True：漢数字、False：漢数字でない
+            True：漢数字である、False：漢数字でない
         """
         return self.is_kansuji09(chars) or self.is_kansuji_kurai(chars)
 
@@ -218,9 +218,55 @@ class DigitUtility(object):
         Returns
         -------
         bool
-            True：数字、False：数字でない
+            True：数字である、False：数字でない
         """
         return self.is_hankakusuji(chars) or self.is_zenkakusuji(chars) or self.is_kansuji(chars)
+
+    def is_comma(self, chars: Optional[str]) -> bool:
+        """与えられた文字列がコンマかどうか判定する.
+
+        Parameters
+        ----------
+        chars : Optional[str]
+            判定対象の文字列
+
+        Returns
+        -------
+        bool
+            True：コンマである、False：コンマでない
+        """
+        return chars == "," or chars == "、" or chars == "，"
+
+    def is_decimal_point(self, chars: Optional[str]) -> bool:
+        """与えられた文字列が小数点かどうか判定する.
+
+        Parameters
+        ----------
+        chars : Optional[str]
+            判定対象の文字列
+
+        Returns
+        -------
+        bool
+            True：小数点である、False：小数点でない
+        """
+        return chars == "." or chars == "・" or chars == "．"
+
+    def is_range_expression(self, chars: str) -> bool:
+        """与えられた文字列が範囲を表す表現かどうか判定する.
+
+        Parameters
+        ----------
+        chars : str
+            判定対象の文字列
+
+        Returns
+        -------
+        bool
+            True：範囲表現である、False：範囲表現でない
+        """
+        return chars == "~" or chars == "〜" or chars == "～" or chars == "-" or chars == "−" or chars == "ー" \
+            or chars == "―" or chars == "から"
 
     def kansuji_kurai2power_value(self, chars: Optional[str]) -> int:
         """漢数字を数値に変換する.
