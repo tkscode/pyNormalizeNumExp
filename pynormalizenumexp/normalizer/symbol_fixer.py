@@ -20,6 +20,37 @@ class SymbolFixer(object):
         """
         self.digit_utility = digit_utility
 
+    def fix_numbers_by_symbol(self, text: str, numbers: List[NNumber]) -> List[NNumber]:
+        """数値表現のPrefixや数値表現間の表現を考慮した表現の修正を行う.
+
+        Parameters
+        ----------
+        text : str
+            元のテキスト
+        numbers : List[NNumber]
+            抽出された数値表現
+
+        Returns
+        -------
+        List[NNumber]
+            修正後の数値表現
+        """
+        new_numbers = deepcopy(numbers)
+        for i, number in enumerate(new_numbers):
+            # prefixの修正
+            fixed_number = self.fix_prefix_symbol(text, number)
+            new_numbers[i] = fixed_number
+
+            # 1つ後の数値表現と組み合わせた修正
+            if i + 1 <= len(new_numbers):
+                fixed_number = self.fix_intermediate_symbol(text, number, new_numbers[i+1])
+                # 修正がされていれば1つ後の数値表現は不要なので削除する
+                if fixed_number.original_expr != number.original_expr:
+                    new_numbers[i] = fixed_number
+                    del(new_numbers[i+1])
+
+        return new_numbers
+
     def extract_plus(self, text: str, i: int) -> Optional[str]:
         """プラス表現であれば該当部分を抽出する.
 
@@ -244,34 +275,3 @@ class SymbolFixer(object):
             return fixed_number
 
         return number
-
-    def fix_numbers_by_symbol(self, text: str, numbers: List[NNumber]) -> List[NNumber]:
-        """数値表現のPrefixや数値表現間の表現を考慮した表現の修正を行う.
-
-        Parameters
-        ----------
-        text : str
-            元のテキスト
-        numbers : List[NNumber]
-            抽出された数値表現
-
-        Returns
-        -------
-        List[NNumber]
-            修正後の数値表現
-        """
-        new_numbers = deepcopy(numbers)
-        for i, number in enumerate(new_numbers):
-            # prefixの修正
-            fixed_number = self.fix_prefix_symbol(text, number)
-            new_numbers[i] = fixed_number
-
-            # 1つ後の数値表現と組み合わせた修正
-            if i + 1 <= len(new_numbers):
-                fixed_number = self.fix_intermediate_symbol(text, number, new_numbers[i+1])
-                # 修正がされていれば1つ後の数値表現は不要なので削除する
-                if fixed_number.original_expr != number.original_expr:
-                    new_numbers[i] = fixed_number
-                    del(new_numbers[i+1])
-
-        return new_numbers

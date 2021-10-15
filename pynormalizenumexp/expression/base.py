@@ -79,6 +79,27 @@ class NNumber(BaseExpression):
         self.value_upper_bound: float = -INF
         self.notation_type: List[int] = []
 
+    def __eq__(self, o: object) -> bool:
+        """=演算子用の処理定義.
+
+        Parameters
+        ----------
+        o : object
+            比較対象のオブジェクト
+
+        Returns
+        -------
+        bool
+            比較結果（True：一致、False：不一致）
+        """
+        if not isinstance(o, NNumber):
+            return False
+
+        return o.original_expr == self.original_expr \
+            and o.position_start == self.position_start and o.position_end == self.position_end \
+            and o.value_lower_bound == self.value_lower_bound and self.value_upper_bound == self.value_upper_bound \
+            and o.notation_type == self.notation_type
+
 
 class NormalizedExpression(BaseExpression):
     """各種正規化表現の基底クラス."""

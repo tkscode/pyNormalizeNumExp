@@ -28,6 +28,6 @@ class BaseNormalizer(object):
         """辞書ファイルの読み込み."""
         raise NotImplementedError()
 
-    def normalize_number(self, text: str, numbers: List[NNumber]) -> None:
-        """数値表現を正規化する."""
+    def normalize_number(self, text: str) -> List[NNumber]:
+        """数値表現の抽出と正規化を行う."""
         raise NotImplementedError()
