@@ -2305,6 +2305,33 @@
       "option": "seireki"
     },
     {
+      "pattern": "令和",
+      "corresponding_time_position": [],
+      "process_type": [
+        "2018"
+      ],
+      "ordinary": false,
+      "option": "seireki"
+    },
+    {
+      "pattern": "R",
+      "corresponding_time_position": [],
+      "process_type": [
+        "2018"
+      ],
+      "ordinary": false,
+      "option": "seireki"
+    },
+    {
+      "pattern": "Ｒ",
+      "corresponding_time_position": [],
+      "process_type": [
+        "2018"
+      ],
+      "ordinary": false,
+      "option": "seireki"
+    },
+    {
       "pattern": "紀元前",
       "corresponding_time_position": [],
       "process_type": [],
