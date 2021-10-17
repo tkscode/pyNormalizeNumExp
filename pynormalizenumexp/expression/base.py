@@ -3,6 +3,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Final, List, Optional, Union
 
+from pynormalizenumexp.utility.custom_type import NTimeInitDict
+
 # 定数定義
 INF: Final[float] = float("inf")
 PLACE_HOLDER: Final[str] = "ǂ"
@@ -99,6 +101,41 @@ class NNumber(BaseExpression):
             and o.position_start == self.position_start and o.position_end == self.position_end \
             and o.value_lower_bound == self.value_lower_bound and self.value_upper_bound == self.value_upper_bound \
             and o.notation_type == self.notation_type
+
+
+class NTime(object):
+    """時間情報を保持するためのクラス."""
+
+    def __init__(self, **kwargs: NTimeInitDict):
+        """コンストラクタ."""
+        if "value" in kwargs:
+            self.year = self.month = self.day = self.hour = self.minute = self.second = kwargs["value"]
+        else:
+            self.year = kwargs["year"]
+            self.month = kwargs["month"]
+            self.day = kwargs["day"]
+            self.hour = kwargs["hour"]
+            self.minute = kwargs["minute"]
+            self.second = kwargs["second"]
+
+    def __eq__(self, o: object) -> bool:
+        """=演算子による評価処理.
+
+        Parameters
+        ----------
+        o : object
+            評価対象のオブジェクト
+
+        Returns
+        -------
+        bool
+            等価かどうか
+        """
+        if not isinstance(o, NTime):
+            return False
+
+        return o.year == self.year and o.month == self.month and o.day == self.day \
+            and o.hour == self.hour and o.minute == self.minute and o.second == self.second
 
 
 class NormalizedExpression(BaseExpression):

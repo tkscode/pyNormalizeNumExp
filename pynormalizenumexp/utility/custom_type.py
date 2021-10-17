@@ -28,3 +28,14 @@ NumberModifierDict = TypedDict("NumberModifier", {
     "pattern": str,
     "process_type": str
 })
+
+# 時間情報を生成する際の辞書オブジェクト用型
+NTimeInitDict = TypedDict("NTimeInitDict", {
+    "value": float,
+    "year": float,
+    "month": float,
+    "day": float,
+    "hour": float,
+    "minute": float,
+    "second": float
+})

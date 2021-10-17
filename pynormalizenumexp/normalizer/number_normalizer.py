@@ -156,8 +156,10 @@ class NumberNormalizer(object):
                 # 連続する数値表現がコンマで連結できなければ次へ
                 continue
 
-            new_numbers[i-1].position_end = new_numbers
+            new_numbers[i-1].position_end = new_numbers[i].position_end
             new_numbers[i-1].original_expr += char_intermediate + new_numbers[i].original_expr
+            # i番目は不要なので削除する
+            # -> iはnew_numbersの後ろから見ているので削除しても整合性は保たれる
             del(new_numbers[i])
 
         return new_numbers
@@ -234,7 +236,7 @@ class NumberNormalizer(object):
 
         Notes
         -----
-            「数十万円」「数万円」「数十円」といった表現の処理を行う
+            「十数万円」といった表現の処理を行う
         """
         if cur_number.position_end != next_number.position_start - 1:
             return cur_number
@@ -281,7 +283,7 @@ class NumberNormalizer(object):
 
         Notes
         -----
-            「十数円」などの処理を行う
+            「十数円」のパターンしかない
         """
         if number.position_end == len(text):
             return number
@@ -311,7 +313,10 @@ class NumberNormalizer(object):
             変換後の数値表現
         """
         new_numbers = deepcopy(numbers)
-        for i, number in enumerate(new_numbers):
+        i = 0
+        while i < len(new_numbers):
+            number = new_numbers[i]
+
             new_numbers[i] = self.fix_prefix_su(text, new_numbers[i])
             if i < len(new_numbers) - 1:
                 new_number = self.fix_intermediate_su(text, new_numbers[i], new_numbers[i+1])
@@ -320,6 +325,8 @@ class NumberNormalizer(object):
                 if new_number.original_expr != number.original_expr:
                     del(new_numbers[i+1])
             new_numbers[i] = self.fix_suffix_su(text, new_numbers[i])
+
+            i += 1
 
         return new_numbers
 

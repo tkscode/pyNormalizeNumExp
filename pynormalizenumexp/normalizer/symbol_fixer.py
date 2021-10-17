@@ -36,7 +36,10 @@ class SymbolFixer(object):
             修正後の数値表現
         """
         new_numbers = deepcopy(numbers)
-        for i, number in enumerate(new_numbers):
+        i = 0
+        while i < len(new_numbers):
+            number = new_numbers[i]
+
             # prefixの修正
             fixed_number = self.fix_prefix_symbol(text, number)
             new_numbers[i] = fixed_number
@@ -48,6 +51,8 @@ class SymbolFixer(object):
                 if fixed_number.original_expr != number.original_expr:
                     new_numbers[i] = fixed_number
                     del(new_numbers[i+1])
+
+            i += 1
 
         return new_numbers
 
