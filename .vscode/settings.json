@@ -32,6 +32,7 @@
     "**/.pytest_cache": true,
     "**/.cov/**": true
   },
+  "python.analysis.autoImportCompletions": false,
   "python.formatting.provider": "autopep8",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": false,
