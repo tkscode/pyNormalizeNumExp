@@ -1,8 +1,8 @@
 import re
 from typing import Dict, List, Optional, Tuple
 
-from pynormalizenumexp.expression import NNumber
-from pynormalizenumexp.expression.base import PLACE_HOLDER
+from pynormalizenumexp.expression import NNumber, NTime
+from pynormalizenumexp.expression.base import INF, PLACE_HOLDER
 
 
 class NormalizerUtility(object):
@@ -79,3 +79,65 @@ class NormalizerUtility(object):
             return fixed_pattern[1]
 
         return -1
+
+    def suffix_search(self, text: str, rev_patterns: Dict[str, int]) -> int:
+        """patternsの中から、テキストのsuffixになっているものを探索する.
+
+        Parameters
+        ----------
+        text : str
+            探索対象のテキスト
+        patterns : Dict[str, int]
+            パターン情報（Key：パターン文字列の逆さになった文字列、Value：パターンID）
+
+        Returns
+        -------
+        int
+            マッチしたパターンID
+
+        Notes
+        -----
+            複数パターンがある場合はテキストのsuffixが最長一致するものを採用する
+        """
+        shortened_text = self.shorten_place_holder_in_text(text)
+        reversed_text = "".join(list(reversed(shortened_text)))
+        match_patterns = [(p_str, p_id) for p_str, p_id in rev_patterns.items() if reversed_text.startswith(p_str)]
+
+        fixed_pattern: Optional[Tuple[str, int]] = None
+        for pattern in match_patterns:
+            if fixed_pattern is not None and len(pattern[0]) > len(fixed_pattern[0]):
+                fixed_pattern = pattern
+
+        if fixed_pattern is not None:
+            return fixed_pattern[1]
+
+        return -1
+
+    def search_prefix_number_modifier(self, text: str, expr_position_start: int, patterns: Dict[str, int]) -> int:
+        before_text = text[:expr_position_start]
+
+        return self.suffix_search(before_text, patterns)
+
+    def search_suffix_number_modifier(self, text: str, expr_position_end: int, patterns: Dict[str, int]) -> int:
+        after_text = text[expr_position_end:]
+
+        return self.prefix_search(after_text, patterns)
+
+    def is_finite(self, value: float) -> bool:
+        return value != INF and value != -INF
+
+    def identify_time_detail(self, time: NTime) -> str:
+        if self.is_finite(time.second):
+            return "S"
+        elif self.is_finite(time.minute):
+            return "M"
+        elif self.is_finite(time.hour):
+            return "H"
+        elif self.is_finite(time.day):
+            return "d"
+        elif self.is_finite(time.month):
+            return "m"
+        elif self.is_finite(time.year):
+            return "y"
+        else:
+            return ""

@@ -1,7 +1,7 @@
 from copy import deepcopy
-from typing import List
+from typing import List, Tuple
 
-from pynormalizenumexp.expression import AbstimeExpression, LimitedAbstimeExpression, NNumber
+from pynormalizenumexp.expression import AbstimeExpression, LimitedAbstimeExpression, NNumber, NTime, NumberModifier
 from pynormalizenumexp.expression.base import INF
 from pynormalizenumexp.utility import DictLoader
 
@@ -44,6 +44,11 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         self.prefix_counters = self.dict_loader.load_limited_abstime_expr_dict(prefix_counter_dict_file)
         self.prefix_number_modifier = self.dict_loader.load_number_modifier_dict(prefix_number_modifier_dict_file)
         self.suffix_number_modifier = self.dict_loader.load_number_modifier_dict(suffix_number_modifier_dict_file)
+
+        self.limited_expression_patterns = self.build_patterns(self.limited_expressions)
+        self.prefix_counter_patterns = self.build_patterns(self.prefix_counters, reverse=True)
+        self.prefix_number_modifier_patterns = self.build_patterns(self.prefix_number_modifier, reverse=True)
+        self.suffix_number_modifier_patterns = self.build_patterns(self.suffix_number_modifier)
 
     def normalize_number(self, text: str) -> List[NNumber]:
         return self.number_normalizer.process(text, do_fix_symbol=False)
@@ -174,11 +179,152 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         max_id = abstime_expr_id + matching_abstime_expr.total_number_of_place_holder
         return [x[1] for x in filter(lambda x: min_id <= x[0] <= max_id, enumerate(new_abstime_exprs))]
 
-    def revise_expr_by_matching_prefix_counter(self):
-        pass
+    def revise_expr_by_matching_prefix_counter(self, abstime_expr: AbstimeExpression,
+                                               matching_expr: LimitedAbstimeExpression) -> AbstimeExpression:
+        # 一致したパターンに応じて、規格化を行う（数字の前側に単位等が来る場合。絶対時間表現の場合「西暦」など）
+        new_abstime_expr = deepcopy(abstime_expr)
+        if matching_expr.option == "seireki":
+            tmp = int(matching_expr.process_type[0])
+            new_abstime_expr.value_lower_bound.year += tmp
+            new_abstime_expr.value_upper_bound.year += tmp
+        elif matching_expr.option == "gogo":
+            new_abstime_expr.value_lower_bound += 12
+            new_abstime_expr.value_upper_bound += 12
+        elif matching_expr.option == "gozen":
+            # 特に操作することはないのでpass
+            pass
+        else:
+            new_abstime_expr.options.append(matching_expr.option)
+
+        new_abstime_expr.position_start -= len(matching_expr.pattern)
+
+        return new_abstime_expr
+
+    def revise_expr_by_number_modifier(self, abstime_expr: AbstimeExpression,
+                                       number_modifier: NumberModifier) -> AbstimeExpression:
+        new_abstime_expr = deepcopy(abstime_expr)
+        if number_modifier.process_type == "or_over":
+            new_abstime_expr.value_upper_bound = NTime(value=-INF)
+        elif number_modifier.process_type == "or_less":
+            new_abstime_expr.value_lower_bound = NTime(value=INF)
+        elif number_modifier.process_type == "over":
+            new_abstime_expr.value_upper_bound = NTime(value=-INF)
+            new_abstime_expr.include_lower_bound = False
+        elif number_modifier.process_type == "less":
+            new_abstime_expr.value_lower_bound = NTime(value=INF)
+            new_abstime_expr.include_upper_bound = False
+        elif number_modifier.process_type == "about":
+            about_val = self.do_time_about(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = about_val[0]
+            new_abstime_expr.value_upper_bound = about_val[1]
+        elif number_modifier.process_type == "none":
+            pass
 
     def delete_not_expr(self):
         pass
 
     def fix_by_range_expression(self):
         pass
+
+    def do_time_about(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "y":
+            val_lb.year -= 5
+            val_ub.year += 5
+        elif target_time_position == "m":
+            # TODO 1月頃という表現だと0月～2月にならないか？
+            val_lb.month -= 1
+            val_ub.month += 1
+        elif target_time_position == "d":
+            val_lb.day -= 1
+            val_ub.day += 1
+        elif target_time_position == "H":
+            val_lb.hour -= 1
+            val_ub.hour += 1
+        elif target_time_position == "M":
+            val_lb.minute -= 5
+            val_ub.minute += 5
+        elif target_time_position == "S":
+            val_lb.second -= 5
+            val_ub.second += 5
+
+        return val_lb, val_ub
+
+    def do_time_zenhan(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "y":
+            if val_lb.year != val_ub.year:
+                # 「18世紀前半」のような場合
+                val_ub.year = (val_lb.year + val_ub.year) / 2 - 0.5
+            else:
+                # 「1989年前半」のような場合
+                val_lb.month = 1
+                val_ub.month = 6
+        elif target_time_position == "m":
+            # 「7月前半」のような場合
+            val_lb.day = 1
+            val_ub.day = 15
+        elif target_time_position == "d":
+            # 「3日朝」のような場合
+            val_lb.hour = 5
+            val_ub.hour = 12
+        else:
+            pass
+
+        return val_lb, val_ub
+
+    def do_time_kouhan(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "y":
+            if val_lb.year != val_ub.year:
+                # 「18世紀後半」のような場合
+                val_lb.year = (val_lb.year + val_ub.year) / 2 + 0.5
+            else:
+                # 「1989年後半」のような場合
+                val_lb.month = 7
+                val_ub.month = 12
+        elif target_time_position == "m":
+            # 「7月後半」のような場合
+            val_lb.day = 16
+            val_ub.day = 31
+        elif target_time_position == "d":
+            # 「3日夜」のような場合
+            val_lb.hour = 18
+            val_ub.hour = 24
+        else:
+            pass
+
+        return val_lb, val_ub
+
+    def do_time_nakaba(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "y":
+            if val_lb.year != val_ub.year:
+                # 「18世紀中盤」のような場合
+                tmp = (val_ub - val_lb) // 4
+                val_lb.year += tmp
+                val_ub.year -= tmp
+            else:
+                # 「1989年中盤」のような場合
+                val_lb.month = 4
+                val_ub.month = 9
+        elif target_time_position == "m":
+            # 「7月半ば」のような場合
+            val_lb.day = 10
+            val_ub.day = 20
+        elif target_time_position == "d":
+            # 「3日昼」のような場合
+            val_lb.hour = 10
+            val_ub.hour = 15
+        else:
+            pass
+
+        return val_lb, val_ub
