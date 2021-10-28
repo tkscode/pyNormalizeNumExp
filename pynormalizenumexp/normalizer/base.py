@@ -2,8 +2,8 @@
 from copy import deepcopy
 from typing import Dict, List, Optional, Tuple
 
-from pynormalizenumexp.expression import (AbstimeExpression, LimitedExpression, NNumber,
-                                          NumberModifier, NormalizedExpression)
+from pynormalizenumexp.expression import (AbstimeExpression, LimitedExpression, NNumber, NormalizedExpression,
+                                          NumberModifier)
 from pynormalizenumexp.utility import DictLoader, NormalizerUtility
 
 
@@ -66,7 +66,7 @@ class BaseNormalizer(object):
         # 数値表現を抽出
         numbers = self.normalize_number(text)
 
-        # ベースとなるexpressionsを作成
+        # 抽出した数値表現を適切な表現（絶対時間など）に変換
         expressions = self.numbers2expressions(numbers)
 
         # 探索のためにテキスト中の数値文字列を * に置換する
@@ -75,6 +75,7 @@ class BaseNormalizer(object):
         # 単位の探索と正規化
         i = 0
         while i < len(expressions):
+            # 変換済みの数値表現を正規化する
             normalized_id, new_expressions = self.normalize_limited_expression(replaced_text, expressions, i)
             if normalized_id == -1:
                 # TODO 単位が存在しなかった場合の処理をどうするか要検討
@@ -84,18 +85,59 @@ class BaseNormalizer(object):
                 expressions = new_expressions
 
             new_expression = self.normalize_prefix_counter(replaced_text, expressions[i])
-            if new_expression is not None:
+            if new_expression:
                 expressions[i] = new_expression
 
+            new_expression = self.normalize_suffix_number_modifier(replaced_text, expressions[i])
+            if new_expression:
+                expressions[i] = new_expression
+
+            new_expression = self.normalize_prefix_number_modifier(replaced_text, expressions[i])
+            if new_expression:
+                expressions[i] = new_expression
+                new_expression = self.normalize_prefix_counter(replaced_text, expressions[i])
+                if new_expression:
+                    expressions[i] = new_expression
+
+            expressions[i].set_original_expr_from_position(text)
+
+            i += 1
+
+        # 範囲表現の処理
+        expressions = self.fix_by_range_expression(text, expressions)
+
+        # 規格化されなかったnumberを削除
+        expressions = self.delete_not_expression(expressions)
+
+        return expressions
+
     def normalize_number(self, text: str) -> List[NNumber]:
-        """数値表現の抽出と正規化を行う."""
+        """テキストから数値表現を抽出する."""
         raise NotImplementedError()
 
     def numbers2expressions(numbers: List[NNumber]) -> List[NormalizedExpression]:
-        """数値表現を正規化済み表現に変換する."""
+        """数値表現を適切な表現（絶対時間など）に変換する."""
         raise NotImplementedError()
 
     def search_matching_limited_expression(self, replaced_text: str, expr: NormalizedExpression) -> int:
+        """テキスト中にどの表現パターンが出現するか検索する.
+
+        Parameters
+        ----------
+        replaced_text : str
+            数値文字列がマスクされた元のテキスト
+        expr : NormalizedExpression
+            抽出された数値表現
+
+        Returns
+        -------
+        int
+            表現パターンのID
+
+        Notes
+        -----
+            「2021年」の「2021」が数値表現として抽出されているので、それに続く「年」という表現が辞書中にあるか調べているイメージ
+        """
         after_text = replaced_text[expr.position_end:]
         matching_pattern_id = self.normalizer_utility.prefix_search(after_text, self.limited_expression_patterns)
 
@@ -110,6 +152,7 @@ class BaseNormalizer(object):
     def revise_expr_by_matching_limited_expression(self, exprs: List[NormalizedExpression],
                                                    expr_id: int,
                                                    matching_expr: NormalizedExpression) -> List[NormalizedExpression]:
+        """マッチした数値表現の補正を行う."""
         raise NotImplementedError()
 
     def revise_expr_by_matching_prefix_counter(self, expr: NormalizedExpression,
@@ -121,17 +164,49 @@ class BaseNormalizer(object):
         raise NotImplementedError()
 
     def revise_expr_by_matching_prefix_number_modifier(self, expr: NormalizedExpression,
-                                                       number_modifier: NumberModifier):
+                                                       number_modifier: NumberModifier) -> NormalizedExpression:
         new_expr = deepcopy(expr)
-        new_expr.position_end -= len(number_modifier.pattern)
+        new_expr.position_start -= len(number_modifier.pattern)
+
+        new_expr = self.revise_expr_by_number_modifier(new_expr, number_modifier)
+
+        return new_expr
+
+    def revise_expr_by_matching_suffix_number_modifier(self, expr: NormalizedExpression,
+                                                       number_modifier: NumberModifier) -> NormalizedExpression:
+        new_expr = deepcopy(expr)
+        new_expr.position_end += len(number_modifier.pattern)
+
+        new_expr = self.revise_expr_by_number_modifier(new_expr, number_modifier)
+
+        return new_expr
 
     def normalize_limited_expression(self, replaced_text: str,
                                      exprs: List[NormalizedExpression], expr_id: int) \
             -> Tuple[int, Optional[List[AbstimeExpression]]]:
+        """抽出された数値表現の正規化.
+
+        Parameters
+        ----------
+        replaced_text : str
+            数値文字列がマスクされた元のテキスト
+        exprs : List[NormalizedExpression]
+            抽出された数値表現
+        expr_id : int
+            どの数値表現に着目するかのID（インデックス）
+
+        Returns
+        -------
+        Tuple[int, Optional[List[AbstimeExpression]]]
+            マッチしたパターン辞書のIDと正規化された数値表現（マッチするものがなければNoneを返す）
+        """
+        # どの表現パターンにマッチするか検索する
         matching_pattern_id = self.search_matching_limited_expression(replaced_text, exprs[expr_id])
         if matching_pattern_id == -1:
+            # マッチするものがなければIDは-1、正規化済みの数値表現はNoneで返す
             return -1, None
 
+        # マッチした表現パターンに応じて数値表現を補正する
         new_exprs = self.revise_expr_by_matching_limited_expression(
             exprs, expr_id, self.limited_expressions[matching_pattern_id])
 
@@ -142,10 +217,57 @@ class BaseNormalizer(object):
         if matching_pattern_id == -1:
             return None
 
-        new_expr = self.revise_expr_by_matching_prefix_counter(expr, self.prefix_counters[matching_pattern_id])
+        return self.revise_expr_by_matching_prefix_counter(expr, self.prefix_counters[matching_pattern_id])
 
-        return new_expr
+    def normalize_prefix_number_modifier(self, replaced_text: str, expr: NormalizedExpression) \
+            -> Optional[NormalizedExpression]:
+        matching_pattern_id = self.normalizer_utility.search_prefix_number_modifier(
+            replaced_text, expr.position_start, self.prefix_number_modifier_patterns)
+        if matching_pattern_id == -1:
+            return None
 
-    # def normalize_prefix_number_modifier(self, replaced_text: str, expr: NormalizedExpression):
-    #     matching_pattern_id = self.normalizer_utility.search_prefix_number_modifier(
-    #         replaced_text, expr.position_start, self.prefix_number_modifier_patterns)
+        return self.revise_expr_by_matching_prefix_number_modifier(
+            expr, self.prefix_number_modifier[matching_pattern_id])
+
+    def normalize_suffix_number_modifier(self, replaced_text: str, expr: NormalizedExpression) \
+            -> Optional[NormalizedExpression]:
+        matching_pattern_id = self.normalizer_utility.search_suffix_number_modifier(
+            replaced_text, expr.position_end, self.suffix_number_modifier_patterns)
+        if matching_pattern_id == -1:
+            return None
+
+        return self.revise_expr_by_matching_suffix_number_modifier(
+            expr, self.suffix_number_modifier[matching_pattern_id])
+
+    def fix_by_range_expression(self, text: str, exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+        raise NotImplementedError()
+
+    def delete_not_expression(self, exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+        raise NotImplementedError()
+
+    def have_kara_prefix(self, options: List[str]) -> bool:
+        return "kara_prefix" in options
+
+    def have_kara_suffix(self, options: List[str]) -> bool:
+        return "kara_suffix" in options
+
+    def merge_options(self, options1: List[str], options2: List[str]) -> List[str]:
+        """範囲表現のオプションをマージする.
+
+        Parameters
+        ----------
+        options1 : List[str]
+            片方の範囲表現のオプション
+        options2 : List[str]
+            もう片方の範囲表現のオプション
+
+        Returns
+        -------
+        List[str]
+            マージしたオプション
+        """
+        # TODO kara_suffixを全部削除して良いかどうかは要検討
+        new_options = list(filter(lambda x: x != "kara_suffix", options1))
+        new_options += list(filter(lambda x: x != "kara_prefix", options2))
+
+        return new_options

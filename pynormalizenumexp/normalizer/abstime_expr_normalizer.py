@@ -1,3 +1,4 @@
+"""絶対時間の抽出・正規化処理を定義するモジュール."""
 from copy import deepcopy
 from typing import List, Tuple
 
@@ -10,6 +11,8 @@ from .number_normalizer import NumberNormalizer
 
 
 class AbstimeExpressionNormalizer(BaseNormalizer):
+    """絶対時間の抽出・正規化を行うクラス."""
+
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
 
@@ -51,61 +54,23 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         self.suffix_number_modifier_patterns = self.build_patterns(self.suffix_number_modifier)
 
     def normalize_number(self, text: str) -> List[NNumber]:
-        return self.number_normalizer.process(text, do_fix_symbol=False)
-
-    def set_time(self, abstime_expr: AbstimeExpression, corresponding_time_position: str,
-                 final_abstime_expr: AbstimeExpression) -> AbstimeExpression:
-        """時間表記に応じて年月日時分秒をセットする.
+        """テキストから数値表現を抽出する.
 
         Parameters
         ----------
-        abstime_expr : AbstimeExpression
-            セット対象の絶対時間表現
-        corresponding_time_position : str
-            時間表記
-        final_abstime_expr : AbstimeExpression
-            セット時に利用する絶対時間表現
+        text : str
+            抽出対象のテキスト
 
         Returns
         -------
-        AbstimeExpression
-            セット後の絶対時間表現
-
-        Raises
-        ------
-        ValueError
-            時間表記が不正な値の場合
+        List[NNumber]
+            抽出した数値表現
         """
-        new_abstime_expr = deepcopy(abstime_expr)
-        if corresponding_time_position == "y":
-            new_abstime_expr.value_lower_bound.year = final_abstime_expr.org_value_lower_bound
-            new_abstime_expr.value_upper_bound.year = final_abstime_expr.org_value_upper_bound
-        elif corresponding_time_position == "m":
-            new_abstime_expr.value_lower_bound.month = final_abstime_expr.org_value_lower_bound
-            new_abstime_expr.value_upper_bound.month = final_abstime_expr.org_value_upper_bound
-        elif corresponding_time_position == "d":
-            new_abstime_expr.value_lower_bound.day = final_abstime_expr.org_value_lower_bound
-            new_abstime_expr.value_upper_bound.day = final_abstime_expr.org_value_upper_bound
-        elif corresponding_time_position == "h":
-            new_abstime_expr.value_lower_bound.hour = final_abstime_expr.org_value_lower_bound
-            new_abstime_expr.value_upper_bound.hour = final_abstime_expr.org_value_upper_bound
-        elif corresponding_time_position == "mn":
-            new_abstime_expr.value_lower_bound.minute = final_abstime_expr.org_value_lower_bound
-            new_abstime_expr.value_upper_bound.minute = final_abstime_expr.org_value_upper_bound
-        elif corresponding_time_position == "s":
-            new_abstime_expr.value_lower_bound.second = final_abstime_expr.org_value_lower_bound
-            new_abstime_expr.value_upper_bound.second = final_abstime_expr.org_value_upper_bound
-        elif corresponding_time_position == "seiki":
-            new_abstime_expr.value_lower_bound.year = final_abstime_expr.org_value_lower_bound * 100 - 99
-            new_abstime_expr.value_upper_bound.year = final_abstime_expr.org_value_upper_bound * 100
-        else:
-            raise ValueError(f'Not supported corresponding time position "{corresponding_time_position}"')
-
-        return new_abstime_expr
+        return self.number_normalizer.process(text, do_fix_symbol=False)
 
     def revise_abstime_expr_by_process_type(self, abstime_expr: AbstimeExpression,
                                             process_type: str) -> AbstimeExpression:
-        """修飾語でないパターンに含まれるprocess_typeによる規格化表現の補正.
+        """修飾語でないパターンに含まれるprocess_typeによる正規化表現の補正を行う.
 
         Parameters
         ----------
@@ -118,11 +83,6 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         -------
         AbstimeExpression
             補正後の絶対時間表現
-
-        Raises
-        ------
-        ValueError
-            処理タイプが不正な値の場合
         """
         new_abstime_expr = deepcopy(abstime_expr)
         if process_type == "gozen":
@@ -151,7 +111,8 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             new_abstime_expr.value_lower_bound.day = INF
             new_abstime_expr.value_upper_bound = -INF
         else:
-            raise ValueError(f'Not supported process type "{process_type}"')
+            # raise ValueError(f'Not supported process type "{process_type}"')
+            pass
 
         return new_abstime_expr
 
@@ -159,6 +120,22 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
                                                    abstime_expr_id: int,
                                                    matching_abstime_expr: LimitedAbstimeExpression) \
             -> List[AbstimeExpression]:
+        """マッチした絶対時間表現の補正を行う.
+
+        Parameters
+        ----------
+        abstime_exprs : List[AbstimeExpression]
+            抽出された絶対時間表現
+        abstime_expr_id : int
+            どの絶対時間表現に着目するかのID（インデックス）
+        matching_abstime_expr : LimitedAbstimeExpression
+            マッチした表現辞書パターン
+
+        Returns
+        -------
+        List[AbstimeExpression]
+            補正済みの絶対時間表現
+        """
         new_abstime_exprs = deepcopy(abstime_exprs)
         final_abstime_expr_id = abstime_expr_id + matching_abstime_expr.total_number_of_place_holder
         new_abstime_exprs[abstime_expr_id].position_end = new_abstime_exprs[final_abstime_expr_id].position_end \
@@ -214,17 +191,80 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             new_abstime_expr.value_lower_bound = NTime(value=INF)
             new_abstime_expr.include_upper_bound = False
         elif number_modifier.process_type == "about":
-            about_val = self.do_time_about(new_abstime_expr)
-            new_abstime_expr.value_lower_bound = about_val[0]
-            new_abstime_expr.value_upper_bound = about_val[1]
+            val_lb, val_ub = self.do_time_about(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "zenhan":
+            val_lb, val_ub = self.do_time_zenhan(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "nakaba":
+            val_lb, val_ub = self.do_time_nakaba(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "kouhan":
+            val_lb, val_ub = self.do_time_kouhan(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "joujun":
+            val_lb, val_ub = self.do_time_joujun(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "tyujun":
+            val_lb, val_ub = self.do_time_tyujun(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "gejun":
+            val_lb, val_ub = self.do_time_gejun(new_abstime_expr)
+            new_abstime_expr.value_lower_bound = val_lb
+            new_abstime_expr.value_upper_bound = val_ub
+        elif number_modifier.process_type == "made":
+            if new_abstime_expr.value_upper_bound == new_abstime_expr.value_lower_bound:
+                # 「3時までに来てください」のような場合
+                new_abstime_expr.value_lower_bound = NTime(value=INF)
+            else:
+                # 「2時～3時までに来てくださいの場合 -> 何もしない
+                pass
         elif number_modifier.process_type == "none":
             pass
+        else:
+            new_abstime_expr.options.append(number_modifier.process_type)
 
-    def delete_not_expr(self):
-        pass
+        return new_abstime_expr
 
-    def fix_by_range_expression(self):
-        pass
+    def delete_not_expression(self, abstime_exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+        for i in range(len(abstime_exprs)):
+            if self.normalizer_utility.is_null_time(abstime_exprs[i].value_lower_bound) \
+                    and self.normalizer_utility.is_null_time(abstime_exprs[i].value_upper_bound):
+                abstime_exprs[i] = None
+
+        return [expr for expr in abstime_exprs if expr]
+
+    def fix_by_range_expression(self, text: str, abstime_exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+        for i in range(len(abstime_exprs) - 1):
+            if abstime_exprs[i] is None:
+                continue
+            if not self.have_kara_suffix(abstime_exprs[i].options) \
+                    or not self.have_kara_prefix(abstime_exprs[i+1].options) \
+                    or abstime_exprs[i].position_end + 2 < abstime_exprs[i+1].position_start:
+                continue
+
+            # 「4~12月」「4月3~4日」の場合、前者（後者）がそもそも時間表現として認識されてないので、時間表現として設定する
+            abstime_exprs[i], abstime_exprs[i+1] = self.abstime_info2null_abstime(abstime_exprs[i], abstime_exprs[i+1])
+
+            # 「2012/4/3~4/5」のような場合、どちらも時間表現として認識されているが、後者で情報が欠落しているので、これを埋める
+            abstime_exprs[i], abstime_exprs[i+1] = self.supplement_abstime_info(abstime_exprs[i], abstime_exprs[i+1])
+
+            # 範囲表現として設定する
+            abstime_exprs[i].value_upper_bound = abstime_exprs[i+1].value_upper_bound
+            abstime_exprs[i].position_end = abstime_exprs[i+1].position_end
+            abstime_exprs[i].set_original_expr_from_position(text)
+            abstime_exprs[i].options = self.merge_options(abstime_exprs[i].options, abstime_exprs[i+1].options)
+
+            # i+1番目は使わないのでNoneにする -> あとでfilterでキレイにする
+            abstime_exprs[i+1] = None
+
+        return [expr for expr in abstime_exprs if expr]
 
     def do_time_about(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
         val_lb = abstime_expr.value_lower_bound
@@ -328,3 +368,145 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             pass
 
         return val_lb, val_ub
+
+    def do_time_joujun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "m":
+            val_lb.day = 1
+            val_lb.day = 10
+
+        return val_lb, val_ub
+
+    def do_time_tyujun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "m":
+            val_lb.day = 11
+            val_lb.day = 20
+
+        return val_lb, val_ub
+
+    def do_time_gejun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        val_lb = abstime_expr.value_lower_bound
+        val_ub = abstime_expr.value_upper_bound
+        target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
+        if target_time_position == "m":
+            val_lb.day = 21
+            val_lb.day = 31
+
+        return val_lb, val_ub
+
+    def abstime_info2null_abstime(self, abstime1: AbstimeExpression, abstime2: AbstimeExpression) \
+            -> Tuple[AbstimeExpression, AbstimeExpression]:
+        if abstime1.value_lower_bound == NTime(value=INF):
+            # lower_boundが空 = 時間として認識されていない場合（例：「4~12月」の「4~」）、lower_boundを設定
+            # TODO 本当は、[i+1]の最上位時間単位を指定したいので、最下位時間単位を返すidentify_time_detailを用いるのは誤り
+            # -> このパターンのとき、2つ以上の時間単位がでてくることは考えられないので、とりあえずこの実装でOK
+            target_time_position = self.normalizer_utility.identify_time_detail(abstime2.value_upper_bound)
+            abstime1 = self.set_time(abstime1, target_time_position, deepcopy(abstime1))
+        elif abstime2.value_upper_bound == NTime(value=-INF):
+            # upper_boundが空 = 時間として認識されていない場合（例：「2012/4/3~6」の「~6」）、upper_boundを設定
+            abstime2.value_upper_bound = abstime1.value_upper_bound
+            target_time_position = self.normalizer_utility.identify_time_detail(abstime1.value_upper_bound)
+            abstime2 = self.set_time(abstime2, target_time_position, deepcopy(abstime2))
+
+        return abstime1, abstime2
+
+    def set_time(self, abstime_expr: AbstimeExpression, time_position: str,
+                 integrate_abstime_expr: AbstimeExpression) -> AbstimeExpression:
+        """時間表記に応じて年月日時分秒をセットする.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            セット対象の絶対時間表現
+        corresponding_time_position : str
+            時間表記
+        final_abstime_expr : AbstimeExpression
+            セット時に利用する絶対時間表現
+
+        Returns
+        -------
+        AbstimeExpression
+            セット後の絶対時間表現
+
+        Raises
+        ------
+        ValueError
+            時間表記が不正な値の場合
+        """
+        new_abstime_expr = deepcopy(abstime_expr)
+        if time_position == "y":
+            new_abstime_expr.value_lower_bound.year = integrate_abstime_expr.org_value_lower_bound
+            new_abstime_expr.value_upper_bound.year = integrate_abstime_expr.org_value_upper_bound
+        elif time_position == "m":
+            new_abstime_expr.value_lower_bound.month = integrate_abstime_expr.org_value_lower_bound
+            new_abstime_expr.value_upper_bound.month = integrate_abstime_expr.org_value_upper_bound
+        elif time_position == "d":
+            new_abstime_expr.value_lower_bound.day = integrate_abstime_expr.org_value_lower_bound
+            new_abstime_expr.value_upper_bound.day = integrate_abstime_expr.org_value_upper_bound
+        elif time_position == "H":
+            new_abstime_expr.value_lower_bound.hour = integrate_abstime_expr.org_value_lower_bound
+            new_abstime_expr.value_upper_bound.hour = integrate_abstime_expr.org_value_upper_bound
+        elif time_position == "M":
+            new_abstime_expr.value_lower_bound.minute = integrate_abstime_expr.org_value_lower_bound
+            new_abstime_expr.value_upper_bound.minute = integrate_abstime_expr.org_value_upper_bound
+        elif time_position == "S":
+            new_abstime_expr.value_lower_bound.second = integrate_abstime_expr.org_value_lower_bound
+            new_abstime_expr.value_upper_bound.second = integrate_abstime_expr.org_value_upper_bound
+        elif time_position == "seiki":
+            new_abstime_expr.value_lower_bound.year = integrate_abstime_expr.org_value_lower_bound * 100 - 99
+            new_abstime_expr.value_upper_bound.year = integrate_abstime_expr.org_value_upper_bound * 100
+
+        return new_abstime_expr
+
+    def supplement_abstime_info(self, abstime1: AbstimeExpression, abstime2: AbstimeExpression) \
+            -> Tuple[AbstimeExpression, AbstimeExpression]:
+        new_abstime1 = deepcopy(abstime1)
+        new_abstime2 = deepcopy(abstime2)
+
+        if self.is_abstime_val_inf(abstime1.value_lower_bound.year, abstime1.value_upper_bound.year):
+            new_abstime1.value_lower_bound.year = abstime2.value_lower_bound.year
+            new_abstime1.value_upper_bound.year = abstime2.value_upper_bound.year
+        if self.is_abstime_val_inf(abstime2.value_lower_bound.year, abstime2.value_upper_bound.year):
+            new_abstime2.value_lower_bound.year = abstime1.value_lower_bound.year
+            new_abstime2.value_upper_bound.year = abstime1.value_upper_bound.year
+        if self.is_abstime_val_inf(abstime1.value_lower_bound.month, abstime1.value_upper_bound.month):
+            new_abstime1.value_lower_bound.month = abstime2.value_lower_bound.month
+            new_abstime1.value_upper_bound.month = abstime2.value_upper_bound.month
+        if self.is_abstime_val_inf(abstime2.value_lower_bound.month, abstime2.value_upper_bound.month):
+            new_abstime2.value_lower_bound.month = abstime1.value_lower_bound.month
+            new_abstime2.value_upper_bound.month = abstime1.value_upper_bound.month
+        if self.is_abstime_val_inf(abstime1.value_lower_bound.day, abstime1.value_upper_bound.day):
+            new_abstime1.value_lower_bound.day = abstime2.value_lower_bound.day
+            new_abstime1.value_upper_bound.day = abstime2.value_upper_bound.day
+        if self.is_abstime_val_inf(abstime2.value_lower_bound.day, abstime2.value_upper_bound.day):
+            new_abstime2.value_lower_bound.day = abstime1.value_lower_bound.day
+            new_abstime2.value_upper_bound.day = abstime1.value_upper_bound.day
+        if self.is_abstime_val_inf(abstime1.value_lower_bound.hour, abstime1.value_upper_bound.hour):
+            new_abstime1.value_lower_bound.hour = abstime2.value_lower_bound.hour
+            new_abstime1.value_upper_bound.hour = abstime2.value_upper_bound.hour
+        if self.is_abstime_val_inf(abstime2.value_lower_bound.hour, abstime2.value_upper_bound.hour):
+            new_abstime2.value_lower_bound.hour = abstime1.value_lower_bound.hour
+            new_abstime2.value_upper_bound.hour = abstime1.value_upper_bound.hour
+        if self.is_abstime_val_inf(abstime1.value_lower_bound.minute, abstime1.value_upper_bound.minute):
+            new_abstime1.value_lower_bound.minute = abstime2.value_lower_bound.minute
+            new_abstime1.value_upper_bound.minute = abstime2.value_upper_bound.minute
+        if self.is_abstime_val_inf(abstime2.value_lower_bound.minute, abstime2.value_upper_bound.minute):
+            new_abstime2.value_lower_bound.minute = abstime1.value_lower_bound.minute
+            new_abstime2.value_upper_bound.minute = abstime1.value_upper_bound.minute
+        if self.is_abstime_val_inf(abstime1.value_lower_bound.second, abstime1.value_upper_bound.second):
+            new_abstime1.value_lower_bound.second = abstime2.value_lower_bound.second
+            new_abstime1.value_upper_bound.second = abstime2.value_upper_bound.second
+        if self.is_abstime_val_inf(abstime2.value_lower_bound.second, abstime2.value_upper_bound.second):
+            new_abstime2.value_lower_bound.second = abstime1.value_lower_bound.second
+            new_abstime2.value_upper_bound.second = abstime1.value_upper_bound.second
+
+        return new_abstime1, new_abstime2
+
+    def is_abstime_val_inf(self, time_elem_lower_bound: float,
+                           time_elem_upper_bound: float) -> bool:
+        return time_elem_lower_bound == INF and time_elem_upper_bound == -INF

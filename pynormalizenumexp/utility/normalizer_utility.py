@@ -1,3 +1,4 @@
+"""正規化・補正処理における共通処理を定義モジュール."""
 import re
 from typing import Dict, List, Optional, Tuple
 
@@ -6,6 +7,8 @@ from pynormalizenumexp.expression.base import INF, PLACE_HOLDER
 
 
 class NormalizerUtility(object):
+    """正規化・補正処理における共通処理のクラス."""
+
     def replace_numbers_in_text(self, text: str, numbers: List[NNumber]) -> str:
         """テキスト中の数値表現をPlaceholderに置換する.
 
@@ -124,7 +127,22 @@ class NormalizerUtility(object):
         return self.prefix_search(after_text, patterns)
 
     def is_finite(self, value: float) -> bool:
+        """与えられた数値が正負の無限大かどうかを判定する.
+
+        Parameters
+        ----------
+        value : float
+            判定対象の数値
+
+        Returns
+        -------
+        bool
+            判定結果（True：正負の無限大である、False：正負の無限大でない）
+        """
         return value != INF and value != -INF
+
+    def is_null_time(self, time: NTime) -> bool:
+        return time == NTime(value=INF) or time == NTime(value=-INF)
 
     def identify_time_detail(self, time: NTime) -> str:
         if self.is_finite(time.second):
