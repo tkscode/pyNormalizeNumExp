@@ -1,16 +1,26 @@
 """辞書ファイルの読み込み定義モジュール."""
 import json
 import os
+from dataclasses import dataclass
 from importlib.resources import open_text
 from typing import Final, List
 
 import pynormalizenumexp
-from pynormalizenumexp.expression import LimitedAbstimeExpression, NumberModifier
+from pynormalizenumexp.expression.base import NumberModifier
+from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
 
 from .custom_type import ChineseCharacterDict, LimitedAbstimeExpressionDict, NumberModifierDict
-from .digit_utility import ChineseCharacter
 
 BASE_DICT_DIR: Final[str] = "resources/dict/"
+
+
+@dataclass
+class ChineseCharacter:
+    """漢数字用クラス."""
+
+    character: str
+    value: int
+    notation_type: str
 
 
 class DictLoader(object):

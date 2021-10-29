@@ -2,8 +2,8 @@
 import re
 from typing import Final, List, Pattern
 
-from pynormalizenumexp.expression import NNumber, NotationType
-from pynormalizenumexp.utility import DigitUtility
+from pynormalizenumexp.expression.base import NNumber, NotationType
+from pynormalizenumexp.utility.digit_utility import DigitUtility
 
 INVALID_NOTATION_TYPE_REG: Final[Pattern[str]] = re.compile(f"{NotationType.HANKAKU} {NotationType.ZENKAKU}"
                                                             + f"|{NotationType.ZENKAKU} {NotationType.HANKAKU}"

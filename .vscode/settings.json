@@ -21,7 +21,8 @@
     "**/__pycache__": true,
     "**/CVS": true,
     "**/.DS_Store": true,
-    "**/Thumbs.db": true
+    "**/Thumbs.db": true,
+    "**/coverage.xml": true
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,

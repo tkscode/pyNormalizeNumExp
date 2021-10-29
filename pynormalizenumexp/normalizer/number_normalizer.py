@@ -2,8 +2,9 @@
 from copy import deepcopy
 from typing import Any, List, Optional
 
-from pynormalizenumexp.expression import NNumber
-from pynormalizenumexp.utility import DictLoader, DigitUtility
+from pynormalizenumexp.expression.base import NNumber
+from pynormalizenumexp.utility.dict_loader import DictLoader
+from pynormalizenumexp.utility.digit_utility import DigitUtility
 
 from .number_extractor import NumberExtractor
 from .symbol_fixer import SymbolFixer

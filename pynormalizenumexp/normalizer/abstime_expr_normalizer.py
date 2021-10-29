@@ -2,9 +2,10 @@
 from copy import deepcopy
 from typing import List, Tuple
 
-from pynormalizenumexp.expression import AbstimeExpression, LimitedAbstimeExpression, NNumber, NTime, NumberModifier
-from pynormalizenumexp.expression.base import INF
-from pynormalizenumexp.utility import DictLoader
+from pynormalizenumexp.expression.abstime import AbstimeExpression
+from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
+from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
+from pynormalizenumexp.utility.dict_loader import DictLoader
 
 from .base import BaseNormalizer
 from .number_normalizer import NumberNormalizer
@@ -157,28 +158,56 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return [x[1] for x in filter(lambda x: min_id <= x[0] <= max_id, enumerate(new_abstime_exprs))]
 
     def revise_expr_by_matching_prefix_counter(self, abstime_expr: AbstimeExpression,
-                                               matching_expr: LimitedAbstimeExpression) -> AbstimeExpression:
+                                               matching_abstime_expr: LimitedAbstimeExpression) -> AbstimeExpression:
+        """マッチした単位表現から絶対時間表現の補正を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            抽出された絶対時間表現
+        matching_abstime_expr : LimitedAbstimeExpression
+            マッチした表現辞書パターン
+
+        Returns
+        -------
+        AbstimeExpression
+            補正済みの絶対時間表現
+        """
         # 一致したパターンに応じて、規格化を行う（数字の前側に単位等が来る場合。絶対時間表現の場合「西暦」など）
         new_abstime_expr = deepcopy(abstime_expr)
-        if matching_expr.option == "seireki":
-            tmp = int(matching_expr.process_type[0])
+        if matching_abstime_expr.option == "seireki":
+            tmp = int(matching_abstime_expr.process_type[0])
             new_abstime_expr.value_lower_bound.year += tmp
             new_abstime_expr.value_upper_bound.year += tmp
-        elif matching_expr.option == "gogo":
+        elif matching_abstime_expr.option == "gogo":
             new_abstime_expr.value_lower_bound += 12
             new_abstime_expr.value_upper_bound += 12
-        elif matching_expr.option == "gozen":
+        elif matching_abstime_expr.option == "gozen":
             # 特に操作することはないのでpass
             pass
         else:
-            new_abstime_expr.options.append(matching_expr.option)
+            new_abstime_expr.options.append(matching_abstime_expr.option)
 
-        new_abstime_expr.position_start -= len(matching_expr.pattern)
+        new_abstime_expr.position_start -= len(matching_abstime_expr.pattern)
 
         return new_abstime_expr
 
-    def revise_expr_by_number_modifier(self, abstime_expr: AbstimeExpression,
+    def revise_expr_by_number_modifier(self, abstime_expr: AbstimeExpression,  # noqa: C901
                                        number_modifier: NumberModifier) -> AbstimeExpression:
+        """マッチした修飾表現から絶対時間表現の補正を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            抽出された絶対時間表現
+        number_modifier : NumberModifier
+            マッチした修飾表現
+
+        Returns
+        -------
+        AbstimeExpression
+            補正後の絶対時間表現
+        """
         new_abstime_expr = deepcopy(abstime_expr)
         if number_modifier.process_type == "or_over":
             new_abstime_expr.value_upper_bound = NTime(value=-INF)
@@ -233,6 +262,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return new_abstime_expr
 
     def delete_not_expression(self, abstime_exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+        """時間オブジェクトがNullの絶対時間表現を削除する.
+
+        Parameters
+        ----------
+        abstime_exprs : List[AbstimeExpression]
+            抽出された絶対時間表現
+
+        Returns
+        -------
+        List[AbstimeExpression]
+            削除後の絶対時間表現
+        """
         for i in range(len(abstime_exprs)):
             if self.normalizer_utility.is_null_time(abstime_exprs[i].value_lower_bound) \
                     and self.normalizer_utility.is_null_time(abstime_exprs[i].value_upper_bound):
@@ -241,6 +282,20 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return [expr for expr in abstime_exprs if expr]
 
     def fix_by_range_expression(self, text: str, abstime_exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+        """絶対時間の範囲表現の修正を行う.
+
+        Parameters
+        ----------
+        text : str
+            元のテキスト
+        abstime_exprs : List[AbstimeExpression]
+            抽出された絶対時間表現
+
+        Returns
+        -------
+        List[AbstimeExpression]
+            修正後の絶対時間表現
+        """
         for i in range(len(abstime_exprs) - 1):
             if abstime_exprs[i] is None:
                 continue
@@ -267,6 +322,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return [expr for expr in abstime_exprs if expr]
 
     def do_time_about(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """about表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -293,6 +360,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def do_time_zenhan(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """前半表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -318,6 +397,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def do_time_kouhan(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """後半表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -343,6 +434,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def do_time_nakaba(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """半ば表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -370,6 +473,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def do_time_joujun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """上旬表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -380,6 +495,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def do_time_tyujun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """中旬表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -390,6 +517,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def do_time_gejun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+        """下旬表現の場合の日付計算を行う.
+
+        Parameters
+        ----------
+        abstime_expr : AbstimeExpression
+            計算対象の絶対時間表現
+
+        Returns
+        -------
+        Tuple[NTime, NTime]
+            計算後の日付情報
+        """
         val_lb = abstime_expr.value_lower_bound
         val_ub = abstime_expr.value_upper_bound
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
@@ -401,6 +540,20 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
     def abstime_info2null_abstime(self, abstime1: AbstimeExpression, abstime2: AbstimeExpression) \
             -> Tuple[AbstimeExpression, AbstimeExpression]:
+        """連続する時間表現から時間表現として認識されていない部分を時間表現として修正する.
+
+        Parameters
+        ----------
+        abstime1 : AbstimeExpression
+            i番目の絶対時間表現
+        abstime2 : AbstimeExpression
+            i+1番目の絶対時間表現
+
+        Returns
+        -------
+        Tuple[AbstimeExpression, AbstimeExpression]
+            修正後のi番目とi+1番目の絶対時間表現
+        """
         if abstime1.value_lower_bound == NTime(value=INF):
             # lower_boundが空 = 時間として認識されていない場合（例：「4~12月」の「4~」）、lower_boundを設定
             # TODO 本当は、[i+1]の最上位時間単位を指定したいので、最下位時間単位を返すidentify_time_detailを用いるのは誤り
@@ -463,8 +616,22 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return new_abstime_expr
 
-    def supplement_abstime_info(self, abstime1: AbstimeExpression, abstime2: AbstimeExpression) \
-            -> Tuple[AbstimeExpression, AbstimeExpression]:
+    def supplement_abstime_info(self, abstime1: AbstimeExpression,  # noqa: C901
+                                abstime2: AbstimeExpression) -> Tuple[AbstimeExpression, AbstimeExpression]:
+        """連続する時間表現で欠落している情報を補完する.
+
+        Parameters
+        ----------
+        abstime1 : AbstimeExpression
+            i番目の絶対時間表現
+        abstime2 : AbstimeExpression
+            i+1番目の絶対時間表現
+
+        Returns
+        -------
+        Tuple[AbstimeExpression, AbstimeExpression]
+            補完後のi番目とi+1番目の絶対時間表現
+        """
         new_abstime1 = deepcopy(abstime1)
         new_abstime2 = deepcopy(abstime2)
 
@@ -509,4 +676,18 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
     def is_abstime_val_inf(self, time_elem_lower_bound: float,
                            time_elem_upper_bound: float) -> bool:
+        """絶対時間表現の特定の値が無限がどうかを判定する.
+
+        Parameters
+        ----------
+        time_elem_lower_bound : float
+            絶対時間表現の下限の値
+        time_elem_upper_bound : float
+            絶対時間表現の上限の値
+
+        Returns
+        -------
+        bool
+            True：無限、False：無限でない
+        """
         return time_elem_lower_bound == INF and time_elem_upper_bound == -INF

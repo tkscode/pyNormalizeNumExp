@@ -180,6 +180,8 @@ class NormalizedExpression(BaseExpression):
 
 
 class NumberModifier(NormalizedExpression):
+    """修飾表現用クラス."""
+
     def __init__(self, pattern: str, process_type: str) -> None:
         self.pattern = pattern
         self.process_type = process_type

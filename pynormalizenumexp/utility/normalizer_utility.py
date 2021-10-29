@@ -2,8 +2,7 @@
 import re
 from typing import Dict, List, Optional, Tuple
 
-from pynormalizenumexp.expression import NNumber, NTime
-from pynormalizenumexp.expression.base import INF, PLACE_HOLDER
+from pynormalizenumexp.expression.base import INF, PLACE_HOLDER, NNumber, NTime
 
 
 class NormalizerUtility(object):
@@ -72,10 +71,11 @@ class NormalizerUtility(object):
         """
         shortened_text = self.shorten_place_holder_in_text(text)
         match_patterns = [(p_str, p_id) for p_str, p_id in patterns.items() if shortened_text.startswith(p_str)]
+        print(match_patterns)
 
         fixed_pattern: Optional[Tuple[str, int]] = None
         for pattern in match_patterns:
-            if fixed_pattern is not None and len(pattern[0]) > len(fixed_pattern[0]):
+            if fixed_pattern is None or len(pattern[0]) > len(fixed_pattern[0]):
                 fixed_pattern = pattern
 
         if fixed_pattern is not None:
@@ -103,6 +103,7 @@ class NormalizerUtility(object):
             複数パターンがある場合はテキストのsuffixが最長一致するものを採用する
         """
         shortened_text = self.shorten_place_holder_in_text(text)
+        # 末尾から見ていくので、テキストを逆順にする
         reversed_text = "".join(list(reversed(shortened_text)))
         match_patterns = [(p_str, p_id) for p_str, p_id in rev_patterns.items() if reversed_text.startswith(p_str)]
 
@@ -117,11 +118,53 @@ class NormalizerUtility(object):
         return -1
 
     def search_prefix_number_modifier(self, text: str, expr_position_start: int, patterns: Dict[str, int]) -> int:
+        """数値表現の前に来る修飾表現を検索する.
+
+        Parameters
+        ----------
+        text : str
+            検索対象のテキスト
+        expr_position_start : int
+            数値表現の開始位置
+        patterns : Dict[str, int]
+            修飾表現パターン
+
+        Returns
+        -------
+        int
+            マッチした修飾表現パターンのID
+
+        Notes
+        -----
+            数値表現の直前から探していくので、suffix_searchを使っている
+        """
         before_text = text[:expr_position_start]
 
+        # 「コンビニで$100を払った」の場合、「100」が数値表現になるので「コンビニで$」を末尾から見ていく
+        # -> 「$」が修飾表現に該当する
         return self.suffix_search(before_text, patterns)
 
     def search_suffix_number_modifier(self, text: str, expr_position_end: int, patterns: Dict[str, int]) -> int:
+        """数値表現の後に来る修飾表現を検索する.
+
+        Parameters
+        ----------
+        text : str
+            検索対象のテキスト
+        expr_position_end : int
+            数値表現の終了位置
+        patterns : Dict[str, int]
+            修飾表現パターン
+
+        Returns
+        -------
+        int
+            マッチした修飾表現パターンのID
+
+        Notes
+        -----
+            数値表現の直後から探していくので、prefix_searchを使っている
+        """
         after_text = text[expr_position_end:]
 
         return self.prefix_search(after_text, patterns)
@@ -142,9 +185,41 @@ class NormalizerUtility(object):
         return value != INF and value != -INF
 
     def is_null_time(self, time: NTime) -> bool:
+        """与えられた時間オブジェクトがNullかどうかを判定する.
+
+        Parameters
+        ----------
+        time : NTime
+            判定対象の時間オブジェクト
+
+        Returns
+        -------
+        bool
+            判定結果（True：Nullである、False：Nullでない）
+
+        Notes
+        -----
+            Nullの場合はNTimeのすべての属性がINFまたは-INFになっている
+        """
         return time == NTime(value=INF) or time == NTime(value=-INF)
 
     def identify_time_detail(self, time: NTime) -> str:
+        """与えられた時間オブジェクトがどの単位のものかを判定する.
+
+        Parameters
+        ----------
+        time : NTime
+            判定対象の時間オブジェクト
+
+        Returns
+        -------
+        str
+            単位を表す文字列
+
+        Notes
+        -----
+            S: 秒、M: 分、H: 時、d: 日、m: 月、 y: 年
+        """
         if self.is_finite(time.second):
             return "S"
         elif self.is_finite(time.minute):

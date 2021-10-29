@@ -1,20 +1,10 @@
 """文字列に関する共通処理モジュール."""
 import re
-from dataclasses import dataclass
 from typing import Dict, Optional
 
 from pynormalizenumexp.expression import NotationType
 
 from .dict_loader import DictLoader
-
-
-@dataclass
-class ChineseCharacter:
-    """漢数字用クラス."""
-
-    character: str
-    value: int
-    notation_type: str
 
 
 class DigitUtility(object):

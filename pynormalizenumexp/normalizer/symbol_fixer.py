@@ -2,8 +2,7 @@
 from copy import deepcopy
 from typing import List, Optional
 
-from pynormalizenumexp.expression import NNumber
-from pynormalizenumexp.expression.base import INF
+from pynormalizenumexp.expression.base import INF, NNumber
 from pynormalizenumexp.utility.digit_utility import DigitUtility
 
 
