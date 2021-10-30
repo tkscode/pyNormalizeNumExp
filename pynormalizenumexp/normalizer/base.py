@@ -37,31 +37,20 @@ class BaseNormalizer(object):
         """辞書ファイルの読み込み."""
         raise NotImplementedError()
 
-    def build_patterns(self, expressions: List[NormalizedExpression], reverse: bool = False) -> Dict[str, int]:
+    def build_patterns(self, expressions: List[NormalizedExpression]) -> Dict[str, int]:
         """パターンオブジェクトからパターン文字列をパターンIDのマップを作成する.
 
         Parameters
         ----------
         expressions : List[NormalizedExpression]
             パターンオブジェクト
-        reverse : bool, optional
-            パターン文字列を逆さにするかどうかのフラグ, by default False
 
         Returns
         -------
         Dict[str, int]
             パターン文字列ごとのパターンIDのマップ
         """
-        tmp_dict = dict()
-        for i, expr in enumerate(expressions):
-            if reverse:
-                pattern = "".join(list(reversed(expr.pattern)))
-            else:
-                pattern = expr.pattern
-
-            tmp_dict[pattern] = i
-
-        return tmp_dict
+        return {expr.pattern: i for i, expr in enumerate(expressions)}
 
     def process(self, text: str) -> List[NormalizedExpression]:
         """数値表現の抽出を正規化を行う.

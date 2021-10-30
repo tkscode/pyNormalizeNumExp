@@ -50,8 +50,8 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         self.suffix_number_modifier = self.dict_loader.load_number_modifier_dict(suffix_number_modifier_dict_file)
 
         self.limited_expression_patterns = self.build_patterns(self.limited_expressions)
-        self.prefix_counter_patterns = self.build_patterns(self.prefix_counters, reverse=True)
-        self.prefix_number_modifier_patterns = self.build_patterns(self.prefix_number_modifier, reverse=True)
+        self.prefix_counter_patterns = self.build_patterns(self.prefix_counters)
+        self.prefix_number_modifier_patterns = self.build_patterns(self.prefix_number_modifier)
         self.suffix_number_modifier_patterns = self.build_patterns(self.suffix_number_modifier)
 
     def normalize_number(self, text: str) -> List[NNumber]:

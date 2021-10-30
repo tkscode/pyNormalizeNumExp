@@ -1,6 +1,5 @@
 """辞書ファイルの読み込み定義モジュール."""
 import json
-import os
 from dataclasses import dataclass
 from importlib.resources import open_text
 from typing import Final, List
@@ -11,7 +10,7 @@ from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpressio
 
 from .custom_type import ChineseCharacterDict, LimitedAbstimeExpressionDict, NumberModifierDict
 
-BASE_DICT_DIR: Final[str] = "resources/dict/"
+BASE_DICT_PKG: Final[str] = "resources.dict"
 
 
 @dataclass
@@ -49,7 +48,7 @@ class DictLoader(object):
         List[ChineseCharacter]
             漢数字情報のリスト
         """
-        with open_text(pynormalizenumexp.__package__, os.path.join(BASE_DICT_DIR, self.language, dict_file)) as fp:
+        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
             characters: List[ChineseCharacterDict] = json.load(fp)["characters"]
             load_target = [ChineseCharacter(character=char["character"], value=char["value"],
                                             notation_type=char["notation_type"]) for char in characters]
@@ -79,7 +78,7 @@ class DictLoader(object):
 
             return expr
 
-        with open_text(pynormalizenumexp.__package__, os.path.join(BASE_DICT_DIR, self.language, dict_file)) as fp:
+        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
             patterns: List[LimitedAbstimeExpressionDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
@@ -98,7 +97,7 @@ class DictLoader(object):
         List[NumberModifier]
             各種表現のprefix/suffixパターン情報のリスト
         """
-        with open_text(pynormalizenumexp.__package__, os.path.join(BASE_DICT_DIR, self.language, dict_file)) as fp:
+        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
             patterns: List[NumberModifierDict] = json.load(fp)["patterns"]
             load_target = [NumberModifier(pattern["pattern"], pattern["process_type"]) for pattern in patterns]
 
