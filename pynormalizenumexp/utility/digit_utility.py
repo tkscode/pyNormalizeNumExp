@@ -38,6 +38,8 @@ class DigitUtility(object):
                 self.kansuji_kurai_to_power_val[c_char.character] = c_char.value
             elif c_char.notation_type == "man":
                 notation_type = NotationType.KANSUJI_KURAI_MAN
+
+                self.kansuji_kurai_to_power_val[c_char.character] = c_char.value
             else:
                 notation_type = NotationType.NOT_NUMBER
 

@@ -9,6 +9,13 @@ class NumberConverter(object):
     """数値文字列を数値に変換する処理の基底クラス."""
 
     def __init__(self, digit_utility: DigitUtility) -> None:
+        """コンストラクタ.
+
+        Parameters
+        ----------
+        digit_utility : DigitUtility
+            数字操作ユーティリティ
+        """
         self.digit_utility = digit_utility
 
     def convert_number(self, number_string: str) -> int:
@@ -25,7 +32,7 @@ class NumberConverter(object):
             変換後の数値
         """
         new_number_string = self.delete_connma(number_string)
-        new_number_string = normalize(new_number_string, "NFKC")
+        new_number_string = normalize("NFKC", new_number_string)
 
         splitted_number_string = self.split_by_kansuji_kurai(new_number_string)
 

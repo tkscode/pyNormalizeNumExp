@@ -13,7 +13,7 @@ class JapaneseNumberConverter(NumberConverter):
         Parameters
         ----------
         digit_utility : DigitUtility
-            辞書ファイルのローダー
+            数字操作ユーティリティ
         """
         super().__init__(digit_utility)
 
@@ -40,7 +40,7 @@ class JapaneseNumberConverter(NumberConverter):
                 number_converted += temp_num * (10 ** self.digit_utility.kansuji_kurai2power_value(char))
                 temp_num = 0
             elif self.digit_utility.is_kansuji09(char):
-                temp_num = temp_num * 10 + self.digit_utility.kansuji_09_to_value(char)
+                temp_num = temp_num * 10 + self.digit_utility.kansuji_09_to_value[char]
             elif self.digit_utility.is_hankakusuji(char):
                 temp_num = temp_num * 10 + int(char)
 
