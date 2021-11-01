@@ -45,9 +45,9 @@ class SymbolFixer(object):
 
             # 1つ後の数値表現と組み合わせた修正
             if i + 1 <= len(new_numbers):
-                fixed_number = self.fix_intermediate_symbol(text, number, new_numbers[i+1])
+                fixed_number = self.fix_intermediate_symbol(text, new_numbers[i], new_numbers[i+1])
                 # 修正がされていれば1つ後の数値表現は不要なので削除する
-                if fixed_number.original_expr != number.original_expr:
+                if fixed_number.original_expr != new_numbers[i].original_expr:
                     new_numbers[i] = fixed_number
                     del(new_numbers[i+1])
 
@@ -126,7 +126,6 @@ class SymbolFixer(object):
         while decimal >= 1:
             decimal *= 0.1
 
-        # 1.001のような0が含まれる表記のため、先頭のゼロの分0.1を乗算する
         pos = 0
         while True:
             if len(number.original_expr) <= pos:
@@ -136,6 +135,7 @@ class SymbolFixer(object):
             if char != "0" and char != "０" and char != "零" and char != "〇":
                 break
 
+            # 1.001のような0が含まれる表記のため、先頭のゼロの分0.1を乗算する
             decimal *= 0.1
             pos += 1
 
@@ -170,7 +170,7 @@ class SymbolFixer(object):
             power_value = self.digit_utility.kansuji_kurai2power_value(char)
             new_number.value_lower_bound *= 10 ** power_value
 
-        new_number.value_upper_bound = number.value_lower_bound
+        new_number.value_upper_bound = new_number.value_lower_bound
         new_number.original_expr += decimal_string + next_number.original_expr
         new_number.position_end = next_number.position_end
 
@@ -267,14 +267,14 @@ class SymbolFixer(object):
 
         if self.digit_utility.is_decimal_point(intermediate[0]):
             # 小数点があれば2つの数値表現を連結して小数の数値表現にする
-            fixed_number = self.fix_decimal_point(number, next_number)
+            fixed_number = self.fix_decimal_point(number, next_number, intermediate[0])
             return fixed_number
 
-        # TODO len(intermediate) == 1の条件があると範囲表現があっても処理されない可能性あり（「から」だと処理されない可能性あり）
-        if (self.digit_utility.is_range_expression(intermediate) or self.digit_utility.is_comma(intermediate[0])) \
-                and len(intermediate) == 1 \
-                and number.value_lower_bound == next_number.value_upper_bound - 1:
-            # カンマや範囲表現があれば2つの数値表現を連結して1つの数値表現にする
+        if self.digit_utility.is_range_expression(intermediate) \
+            or (self.digit_utility.is_comma(intermediate[0])
+                and len(intermediate) == 1
+                and number.value_lower_bound == next_number.value_upper_bound - 1):
+            # カンマの並列表現（1,2など）や範囲表現があれば2つの数値表現を連結して1つの数値表現にする
             fixed_number = self.fix_range_expression(number, next_number, intermediate)
             return fixed_number
 
