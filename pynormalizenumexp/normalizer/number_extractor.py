@@ -5,13 +5,13 @@ from typing import Final, List, Pattern
 from pynormalizenumexp.expression.base import NNumber, NotationType
 from pynormalizenumexp.utility.digit_utility import DigitUtility
 
-INVALID_NOTATION_TYPE_REG: Final[Pattern[str]] = re.compile(f"{NotationType.HANKAKU} {NotationType.ZENKAKU}"
-                                                            + f"|{NotationType.ZENKAKU} {NotationType.HANKAKU}"
-                                                            + f"|{NotationType.HANKAKU} {NotationType.KANSUJI_09}"
-                                                            + f"|{NotationType.KANSUJI_09} {NotationType.HANKAKU}"
-                                                            + f"|{NotationType.ZENKAKU} {NotationType.KANSUJI_09}"
-                                                            + f"|{NotationType.KANSUJI_09} {NotationType.ZENKAKU}",
-                                                            flags=re.DOTALL)
+INVALID_NOTATION_TYPE_REG: Final[Pattern] = re.compile(f"{NotationType.HANKAKU} {NotationType.ZENKAKU}"
+                                                       + f"|{NotationType.ZENKAKU} {NotationType.HANKAKU}"
+                                                       + f"|{NotationType.HANKAKU} {NotationType.KANSUJI_09}"
+                                                       + f"|{NotationType.KANSUJI_09} {NotationType.HANKAKU}"
+                                                       + f"|{NotationType.ZENKAKU} {NotationType.KANSUJI_09}"
+                                                       + f"|{NotationType.KANSUJI_09} {NotationType.ZENKAKU}",
+                                                       flags=re.DOTALL)
 
 
 class NumberExtractor(object):
@@ -66,7 +66,8 @@ class NumberExtractor(object):
 
         Notes
         -----
-            例：「一万五千七百億」のように「万」のあとに「億」が来るものを「一万五千」と「七百億」に分割する
+            例：「一万五千七百億」のように「万」のあとに「億」が来るものを「一万五千七百」と「億」に分割する
+            Java版の isInvalidKansujiKuraiOrder と同義
         """
         if not self.digit_utility.is_kansuji(number.original_expr[0]):
             # 漢数字でない表記の場合は分割できないのでそのままにする
@@ -87,29 +88,31 @@ class NumberExtractor(object):
                 continue
 
             # 漢数字の文字列を数値に変換
-            prev_kansuji_value = self.digit_utility.kansuji_kurai2power_value(prev_num_str)
-            cur_kansuji_value = self.digit_utility.kansuji_kurai2power_value(cur_num_str)
+            prev_kansuji_value = self.digit_utility.kansuji_kurai2power_value(prev_num_str[-1])
+            cur_kansuji_value = self.digit_utility.kansuji_kurai2power_value(cur_num_str[-1])
             # 記憶している文字列の数値が新たな文字列の数値より小さい場合（prev:二千 cur:三億 など）
             # -> 漢数字の文字列としてつながることはないため、prev_num_strを新たな数値表現として切り出す
             if prev_kansuji_value < cur_kansuji_value:
                 new_position_start = number.position_start + position_start
                 new_position_end = new_position_start + len(prev_num_str)
                 new_number = NNumber(prev_num_str, new_position_start, new_position_end)
-                new_number.notation_type = number.notation_type[position_start:i+1]
+                new_number.notation_type = number.notation_type[position_start:i]
                 numbers.append(new_number)
 
                 position_start = i
-                prev_num_str = cur_num_str
+
+            prev_num_str = cur_num_str
 
         if len(numbers) == 0:
             return [number]
 
         # 余った部分があれば切り出す
-        if position_start != len(number.notation_type) - 1:
-            new_position_start = number.position_start + position_start
-            new_position_end = new_position_start + len(prev_num_str)
-            new_number = NNumber(prev_num_str, new_position_start, new_position_end)
-            new_number.notation_type = number.notation_type[position_start:i+1]
+        if numbers[-1].position_end != len(number.notation_type):
+            new_num_str = number.original_expr[position_start:]
+            new_position_start = numbers[-1].position_end
+            new_position_end = new_position_start + len(new_num_str)
+            new_number = NNumber(new_num_str, new_position_start, new_position_end)
+            new_number.notation_type = number.notation_type[position_start:]
             numbers.append(new_number)
 
         return numbers
@@ -133,15 +136,15 @@ class NumberExtractor(object):
         """
         numbers: List[NNumber] = []
         position_start = 0
-        for i in range(1, len(number.notation_type)):
+        for i in range(1, len(number.notation_type)-1):
             # 数字の表記が入り乱れているか
             if self.is_invalid_notation_type(number.notation_type[i-1:i+1]):
                 # 新たに数値表現を切り出す
-                new_num_str = number.original_expr[position_start:i+1]
+                new_num_str = number.original_expr[position_start:i]
                 new_position_start = number.position_start + position_start
                 new_position_end = new_position_start + len(new_num_str)
                 new_number = NNumber(new_num_str, new_position_start, new_position_end)
-                new_number.notation_type = number.notation_type[position_start:i+1]
+                new_number.notation_type = number.notation_type[position_start:i]
                 numbers.append(new_number)
 
                 position_start = i
@@ -150,12 +153,12 @@ class NumberExtractor(object):
             return [number]
 
         # 余った部分があれば切り出す
-        if position_start != len(number.notation_type) - 1:
-            new_num_str = number.original_expr[position_start:i+1]
-            new_position_start = number.position_start + position_start
+        if numbers[-1].position_end != len(number.notation_type):
+            new_num_str = number.original_expr[position_start:]
+            new_position_start = numbers[-1].position_end
             new_position_end = new_position_start + len(new_num_str)
             new_number = NNumber(new_num_str, new_position_start, new_position_end)
-            new_number.notation_type = number.notation_type[position_start:i+1]
+            new_number.notation_type = number.notation_type[position_start:]
             numbers.append(new_number)
 
         return numbers
