@@ -273,7 +273,7 @@ class DigitUtility(object):
         int
             変換した数値
         """
-        if not self.is_kansuji_kurai(chars) or chars not in self.kansuji_kurai_to_power_val:
+        if chars != "　" and (chars not in self.kansuji_kurai_to_power_val or not self.is_kansuji_kurai(chars)):
             raise ValueError(f'"{chars}" is not kansuji_kurai')
 
         return self.kansuji_kurai_to_power_val[chars]

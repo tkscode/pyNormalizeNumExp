@@ -28,7 +28,7 @@ class NumberNormalizer(object):
         self.number_extractor = NumberExtractor(self.digit_utility)
         self.symbol_fixer = SymbolFixer(self.digit_utility)
         if dict_loader.language == "ja":
-            from .converter import JapaneseNumberConverter
+            from .converter.japanese_number_converter import JapaneseNumberConverter
             self.number_converter = JapaneseNumberConverter(self.digit_utility)
         else:
             raise ValueError(f'Not supported language "{dict_loader.language}"')
@@ -42,6 +42,7 @@ class NumberNormalizer(object):
             入力テキスト
         do_fix_symbol : bool, optional
             記号の処理を行うかのフラグ（True：行う、False：行わない）, by default True
+            絶対時間表現の場合はFalseにする
 
         Returns
         -------
@@ -59,7 +60,7 @@ class NumberNormalizer(object):
 
         # 「数万」などの「数」表現を数値に変換する
         # TODO fix_symbolとマージ
-        numbers = self.fix_numbers_by_su(numbers)
+        numbers = self.fix_numbers_by_su(input, numbers)
 
         # 「京」「万」など「万」以上の桁区切り文字しかないものを削除
         numbers = self.remove_only_kansuji_kurai_man(numbers)
@@ -210,13 +211,15 @@ class NumberNormalizer(object):
         if text[number.position_start-1] != "数":
             return number
 
+        new_number = deepcopy(number)
+
         # 「数」の範囲の操作
-        number.value_upper_bound *= 9
+        new_number.value_upper_bound *= 9
 
-        number.position_start -= 1
-        number.original_expr = "数" + number.original_expr
+        new_number.position_start -= 1
+        new_number.original_expr = "数" + new_number.original_expr
 
-        return number
+        return new_number
 
     def fix_intermediate_su(self, text: str, cur_number: NNumber, next_number: NNumber) -> NNumber:
         """数値表現中に出現する「数」表現を数値に変換する.
@@ -244,28 +247,31 @@ class NumberNormalizer(object):
         if text[cur_number.position_end] != "数":
             return cur_number
 
+        new_cur_number = deepcopy(cur_number)
+        new_next_number = deepcopy(next_number)
+
         # 「数」の範囲の操作
-        # cur_number.valueを、next_number.valueのスケールに合わせる
+        # new_cur_number.valueを、new_next_number.valueのスケールに合わせる
         while True:
-            if next_number.value_lower_bound < cur_number.value_lower_bound:
+            if new_next_number.value_lower_bound < new_cur_number.value_lower_bound:
                 break
 
-            cur_number.value_lower_bound *= 10 ** 4
-            if cur_number.value_lower_bound <= 0:
+            new_cur_number.value_lower_bound *= 10 ** 4
+            if new_cur_number.value_lower_bound <= 0:
                 # 「0数万」のような場合
-                return cur_number
+                return new_cur_number
 
-        cur_number.value_upper_bound = cur_number.value_lower_bound
-        # next_numberに「数」の処理を行う
-        next_number.value_upper_bound *= 9
+        new_cur_number.value_upper_bound = new_cur_number.value_lower_bound
+        # new_next_numberに「数」の処理を行う
+        new_next_number.value_upper_bound *= 9
         # 2つの数の範囲をマージ
-        cur_number.value_lower_bound += next_number.value_lower_bound
-        cur_number.value_upper_bound += next_number.value_upper_bound
+        new_cur_number.value_lower_bound += new_next_number.value_lower_bound
+        new_cur_number.value_upper_bound += new_next_number.value_upper_bound
 
-        cur_number.position_end = next_number.position_end
-        cur_number.original_expr += "数" + next_number.original_expr
+        new_cur_number.position_end = new_next_number.position_end
+        new_cur_number.original_expr += "数" + new_next_number.original_expr
 
-        return cur_number
+        return new_cur_number
 
     def fix_suffix_su(self, text: str, number: NNumber) -> NNumber:
         """数値表現の末尾に出現する「数」を数値に変換する.
@@ -291,12 +297,14 @@ class NumberNormalizer(object):
         if text[number.position_end] != "数":
             return number
 
-        number.value_upper_bound += 9
-        number.value_lower_bound += 1
-        number.original_expr += "数"
-        number.position_end += 1
+        new_number = deepcopy(number)
 
-        return number
+        new_number.value_upper_bound += 9
+        new_number.value_lower_bound += 1
+        new_number.original_expr += "数"
+        new_number.position_end += 1
+
+        return new_number
 
     def fix_numbers_by_su(self, text: str, numbers: List[NNumber]) -> List[NNumber]:
         """抽出した各数値表現中に含まれる「数」表現を数値に変換する.
@@ -316,15 +324,13 @@ class NumberNormalizer(object):
         new_numbers = deepcopy(numbers)
         i = 0
         while i < len(new_numbers):
-            number = new_numbers[i]
-
             new_numbers[i] = self.fix_prefix_su(text, new_numbers[i])
             if i < len(new_numbers) - 1:
                 new_number = self.fix_intermediate_su(text, new_numbers[i], new_numbers[i+1])
-                if new_number != number:
+                if new_number != new_numbers[i]:
                     new_numbers[i] = new_number
-                if new_number.original_expr != number.original_expr:
                     del(new_numbers[i+1])
+
             new_numbers[i] = self.fix_suffix_su(text, new_numbers[i])
 
             i += 1

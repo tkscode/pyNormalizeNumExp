@@ -69,6 +69,7 @@ class NumberExtractor(object):
             例：「一万五千七百億」のように「万」のあとに「億」が来るものを「一万五千七百」と「億」に分割する
             Java版の isInvalidKansujiKuraiOrder と同義
         """
+        # TODO 書き直す
         if not self.digit_utility.is_kansuji(number.original_expr[0]):
             # 漢数字でない表記の場合は分割できないのでそのままにする
             return [number]
@@ -92,7 +93,9 @@ class NumberExtractor(object):
             cur_kansuji_value = self.digit_utility.kansuji_kurai2power_value(cur_num_str[-1])
             # 記憶している文字列の数値が新たな文字列の数値より小さい場合（prev:二千 cur:三億 など）
             # -> 漢数字の文字列としてつながることはないため、prev_num_strを新たな数値表現として切り出す
-            if prev_kansuji_value < cur_kansuji_value:
+            # -> ただし、百二十万などの場合は分割しない（二万三億のように万以上の位続く場合だけ分割する）
+            if prev_kansuji_value < cur_kansuji_value \
+                    and any([self.digit_utility.is_kansuji_kurai_man(char) for char in prev_num_str]):
                 new_position_start = number.position_start + position_start
                 new_position_end = new_position_start + len(prev_num_str)
                 new_number = NNumber(prev_num_str, new_position_start, new_position_end)
@@ -186,7 +189,7 @@ class NumberExtractor(object):
         while i < len(text):
             if text_notation_type[i] == NotationType.NOT_NUMBER:
                 if len(num_str) > 0:
-                    number = NNumber(num_str, i-len(num_str), i-1)
+                    number = NNumber(num_str, i-len(num_str), i)
                     number.notation_type = text_notation_type[i-len(num_str):i]
                     numbers.append(number)
 
@@ -197,7 +200,7 @@ class NumberExtractor(object):
             i += 1
 
         if len(num_str) > 0:
-            number = NNumber(num_str, i-len(num_str), i-1)
+            number = NNumber(num_str, i-len(num_str), i)
             number.notation_type = text_notation_type[i-len(num_str):i]
             numbers.append(number)
 

@@ -44,7 +44,7 @@ class SymbolFixer(object):
             new_numbers[i] = fixed_number
 
             # 1つ後の数値表現と組み合わせた修正
-            if i + 1 <= len(new_numbers):
+            if i + 1 < len(new_numbers):
                 fixed_number = self.fix_intermediate_symbol(text, new_numbers[i], new_numbers[i+1])
                 # 修正がされていれば1つ後の数値表現は不要なので削除する
                 if fixed_number.original_expr != new_numbers[i].original_expr:

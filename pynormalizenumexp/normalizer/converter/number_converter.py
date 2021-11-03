@@ -49,7 +49,7 @@ class NumberConverter(object):
                     # -> TODO 処理するケースがあるか不明のため何もしない
                     pass
 
-            n_pow = self.digit_utility.kansuji_kurai2power_value(kurai) if kurai != "　" else 0
+            n_pow = self.digit_utility.kansuji_kurai2power_value(kurai)
             value += number_converted * (10 ** n_pow)
             number_converted = 0
 
@@ -86,7 +86,7 @@ class NumberConverter(object):
         splitted_number_string = []
         temp_string = ""
         for char in number_string:
-            if self.digit_utility.is_kansuji_kurai(char):
+            if self.digit_utility.is_kansuji_kurai_man(char):
                 splitted_number_string.append((temp_string, char))
                 temp_string = ""
             else:

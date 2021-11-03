@@ -28,3 +28,15 @@ class TestNumberConverter:
             ("年前からあいうえお", "　")
         ]
         assert res == expect
+
+        res = number_converter.split_by_kansuji_kurai("百二十三万四千五百六十七")
+        expect = [
+            ("", "百"),
+            ("二", "十"),
+            ("三", "万"),
+            ("四", "千"),
+            ("五", "百"),
+            ("六", "十"),
+            ("七", "　")
+        ]
+        assert res == expect
