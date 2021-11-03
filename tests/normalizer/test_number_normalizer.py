@@ -85,11 +85,45 @@ class TestNumberNormalizer:
         expect[1].notation_type = [NotationType.ZENKAKU, NotationType.ZENKAKU, NotationType.ZENKAKU]
         assert res == expect
 
+        res = number_normalizer.process("1,2個")
+        expect = [NNumber("1,2", 0, 3)]
+        expect[0].value_lower_bound = 1
+        expect[0].value_upper_bound = 2
+        expect[0].notation_type = [NotationType.HANKAKU]
+        assert res == expect
+
     def test_process_数値なし(self, number_normalizer: NumberNormalizer):
         res = number_normalizer.process("あいうえお")
         assert res == []
 
-    # TODO https://github.com/cotogoto/normalize-numexp/blob/main/test/jp/livlog/numexp/numberNormalizer/NumberNormalizerTest.java#L265-L409
+    def test_process_invalid_notation(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("1千1千1千")
+        expect = [NNumber("1千1", 0, 3), NNumber("千1", 3, 5), NNumber("千", 5, 6)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 1001
+        expect[0].notation_type = [NotationType.HANKAKU, NotationType.KANSUJI_KURAI_SEN, NotationType.HANKAKU]
+        expect[1].value_lower_bound = expect[1].value_upper_bound = 1001
+        expect[1].notation_type = [NotationType.KANSUJI_KURAI_SEN, NotationType.HANKAKU]
+        expect[2].value_lower_bound = expect[2].value_upper_bound = 1000
+        expect[2].notation_type = [NotationType.KANSUJI_KURAI_SEN]
+        assert res == expect
+
+        res = number_normalizer.process("２００７20人がきた")
+        expect = [NNumber("２００７", 0, 4), NNumber("20", 4, 6)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 2007
+        expect[0].notation_type = [NotationType.ZENKAKU, NotationType.ZENKAKU, NotationType.ZENKAKU, NotationType.ZENKAKU]
+        expect[1].value_lower_bound = expect[1].value_upper_bound = 20
+        expect[1].notation_type = [NotationType.HANKAKU, NotationType.HANKAKU]
+        assert res == expect
+
+        res = number_normalizer.process("２００７二十人がきた")
+        expect = [NNumber("２００７", 0, 4), NNumber("二十", 4, 6)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 2007
+        expect[0].notation_type = [NotationType.ZENKAKU, NotationType.ZENKAKU, NotationType.ZENKAKU, NotationType.ZENKAKU]
+        expect[1].value_lower_bound = expect[1].value_upper_bound = 20
+        expect[1].notation_type = [NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN]
+        assert res == expect
+
+    # TODO https://github.com/cotogoto/normalize-numexp/blob/main/test/jp/livlog/numexp/numberNormalizer/NumberNormalizerTest.java#L349-L409
 
     def test_suffix_is_arabic(self, number_normalizer: NumberNormalizer):
         res = number_normalizer.suffix_is_arabic("10")

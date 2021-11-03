@@ -78,7 +78,6 @@ class BaseNormalizer(object):
         i = 0
         while i < len(expressions):
             # 変換済みの数値表現を正規化する
-            print(expressions[i])
             normalized_id, new_expressions = self.normalize_limited_expression(replaced_text, expressions, i)
             if normalized_id == -1:
                 # TODO 単位が存在しなかった場合の処理をどうするか要検討
@@ -87,19 +86,13 @@ class BaseNormalizer(object):
                 i = normalized_id
                 expressions = new_expressions
 
-            print(expressions[i])
-
             new_expression = self.normalize_prefix_counter(replaced_text, expressions[i])
             if new_expression:
                 expressions[i] = new_expression
 
-            print(expressions[i])
-
             new_expression = self.normalize_suffix_number_modifier(replaced_text, expressions[i])
             if new_expression:
                 expressions[i] = new_expression
-
-            print(expressions[i])
 
             new_expression = self.normalize_prefix_number_modifier(replaced_text, expressions[i])
             if new_expression:
@@ -108,12 +101,7 @@ class BaseNormalizer(object):
                 if new_expression:
                     expressions[i] = new_expression
 
-            print(expressions[i])
-
             expressions[i].set_original_expr_from_position(text)
-
-            print(expressions[i])
-            print("-"*10)
 
             i += 1
 

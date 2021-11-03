@@ -69,8 +69,7 @@ class NumberExtractor(object):
             例：「一万五千七百億」のように「万」のあとに「億」が来るものを「一万五千七百」と「億」に分割する
             Java版の isInvalidKansujiKuraiOrder と同義
         """
-        # TODO 書き直す
-        if not self.digit_utility.is_kansuji(number.original_expr[0]):
+        if not any([self.digit_utility.is_kansuji(char) for char in number.original_expr]):
             # 漢数字でない表記の場合は分割できないのでそのままにする
             return [number]
 
@@ -78,7 +77,9 @@ class NumberExtractor(object):
         prev_num_str = ""
         position_start = 0
         for i in range(len(number.notation_type)):
-            if number.notation_type[i] == NotationType.KANSUJI_09:
+            if number.notation_type[i] == NotationType.KANSUJI_09 \
+                    or number.notation_type[i] == NotationType.HANKAKU \
+                    or number.notation_type[i] == NotationType.ZENKAKU:
                 continue
 
             # 一の位でない場合（KANSUJI_SEN or KANSUJI_MANの場合）は新たに数値表現を切り出す
@@ -94,11 +95,13 @@ class NumberExtractor(object):
             # 記憶している文字列の数値が新たな文字列の数値より小さい場合（prev:二千 cur:三億 など）
             # -> 漢数字の文字列としてつながることはないため、prev_num_strを新たな数値表現として切り出す
             # -> ただし、百二十万などの場合は分割しない（二万三億のように万以上の位続く場合だけ分割する）
-            if prev_kansuji_value < cur_kansuji_value \
-                    and any([self.digit_utility.is_kansuji_kurai_man(char) for char in prev_num_str]):
+            if prev_kansuji_value == cur_kansuji_value \
+                or (prev_kansuji_value < cur_kansuji_value
+                    and any([self.digit_utility.is_kansuji_kurai_man(char) for char in prev_num_str])):
+                new_num_str = number.original_expr[position_start:i]
                 new_position_start = number.position_start + position_start
-                new_position_end = new_position_start + len(prev_num_str)
-                new_number = NNumber(prev_num_str, new_position_start, new_position_end)
+                new_position_end = new_position_start + len(new_num_str)
+                new_number = NNumber(new_num_str, new_position_start, new_position_end)
                 new_number.notation_type = number.notation_type[position_start:i]
                 numbers.append(new_number)
 
