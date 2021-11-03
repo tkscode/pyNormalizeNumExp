@@ -78,6 +78,7 @@ class BaseNormalizer(object):
         i = 0
         while i < len(expressions):
             # 変換済みの数値表現を正規化する
+            print(expressions[i])
             normalized_id, new_expressions = self.normalize_limited_expression(replaced_text, expressions, i)
             if normalized_id == -1:
                 # TODO 単位が存在しなかった場合の処理をどうするか要検討
@@ -86,13 +87,19 @@ class BaseNormalizer(object):
                 i = normalized_id
                 expressions = new_expressions
 
+            print(expressions[i])
+
             new_expression = self.normalize_prefix_counter(replaced_text, expressions[i])
             if new_expression:
                 expressions[i] = new_expression
 
+            print(expressions[i])
+
             new_expression = self.normalize_suffix_number_modifier(replaced_text, expressions[i])
             if new_expression:
                 expressions[i] = new_expression
+
+            print(expressions[i])
 
             new_expression = self.normalize_prefix_number_modifier(replaced_text, expressions[i])
             if new_expression:
@@ -101,7 +108,12 @@ class BaseNormalizer(object):
                 if new_expression:
                     expressions[i] = new_expression
 
+            print(expressions[i])
+
             expressions[i].set_original_expr_from_position(text)
+
+            print(expressions[i])
+            print("-"*10)
 
             i += 1
 
@@ -141,7 +153,8 @@ class BaseNormalizer(object):
             「2021年」の「2021」が数値表現として抽出されているので、それに続く「年」という表現が辞書中にあるか調べているイメージ
         """
         after_text = replaced_text[expr.position_end:]
-        matching_pattern_id = self.normalizer_utility.prefix_search(after_text, self.limited_expression_patterns)
+        matching_pattern_id = self.normalizer_utility.search_pattern(after_text,
+                                                                     self.limited_expression_patterns, "prefix")
 
         return matching_pattern_id
 
@@ -161,7 +174,8 @@ class BaseNormalizer(object):
             見つかった単位表現パターンのID
         """
         before_text = replaced_text[:expr.position_start]
-        matching_pattern_id = self.normalizer_utility.suffix_search(before_text, self.prefix_counter_patterns)
+        matching_pattern_id = self.normalizer_utility.search_pattern(before_text,
+                                                                     self.prefix_counter_patterns, "suffix")
 
         return matching_pattern_id
 
@@ -256,7 +270,7 @@ class BaseNormalizer(object):
         new_exprs = self.revise_expr_by_matching_limited_expression(
             exprs, expr_id, self.limited_expressions[matching_pattern_id])
 
-        return matching_pattern_id, new_exprs
+        return expr_id, new_exprs
 
     def normalize_prefix_counter(self, replaced_text: str, expr: NormalizedExpression) -> Optional[AbstimeExpression]:
         """数値表現の直前に出現する単位表現の正規化.

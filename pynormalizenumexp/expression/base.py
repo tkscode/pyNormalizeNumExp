@@ -144,7 +144,7 @@ class LimitedExpression(BaseExpression):
         """パターン文字列中にPlace holderが最後に出現した位置より後のパターン文字列の長さを取得."""
         idx = self.pattern.rfind(PLACE_HOLDER)
         if idx > -1:
-            self.len_of_after_final_place_holder = len(self.pattern[idx:])
+            self.len_of_after_final_place_holder = len(self.pattern[idx+1:])
         else:
             self.len_of_after_final_place_holder = len(self.pattern)
 

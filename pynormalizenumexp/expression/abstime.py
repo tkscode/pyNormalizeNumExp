@@ -1,7 +1,5 @@
 """絶対時間の表現定義モジュール."""
-from typing import Optional
-
-from .base import NNumber, NormalizedExpression, NTime
+from .base import INF, NNumber, NormalizedExpression, NTime
 
 
 class AbstimeExpression(NormalizedExpression):
@@ -19,8 +17,8 @@ class AbstimeExpression(NormalizedExpression):
 
         self.org_value_lower_bound = number.value_lower_bound
         self.org_value_upper_bound = number.value_upper_bound
-        self.value_lower_bound: Optional[NTime] = None
-        self.value_upper_bound: Optional[NTime] = None
+        self.value_lower_bound = NTime(value=INF)
+        self.value_upper_bound = NTime(value=-INF)
         self.ordinary = False
 
     def __eq__(self, o: object) -> bool:  # noqa: D105

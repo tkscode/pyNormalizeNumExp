@@ -54,6 +54,10 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         self.prefix_number_modifier_patterns = self.build_patterns(self.prefix_number_modifier)
         self.suffix_number_modifier_patterns = self.build_patterns(self.suffix_number_modifier)
 
+        for expr in self.limited_expressions:
+            expr.set_total_number_of_place_holder()
+            expr.set_len_of_after_final_place_holder()
+
     def normalize_number(self, text: str) -> List[NNumber]:
         """テキストから数値表現を抽出する.
 
@@ -155,7 +159,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         min_id = abstime_expr_id + 1
         max_id = abstime_expr_id + matching_abstime_expr.total_number_of_place_holder
-        return [x[1] for x in filter(lambda x: min_id <= x[0] <= max_id, enumerate(new_abstime_exprs))]
+        return [x[1] for x in filter(lambda x: min_id > x[0] or x[0] > max_id, enumerate(new_abstime_exprs))]
 
     def revise_expr_by_matching_prefix_counter(self, abstime_expr: AbstimeExpression,
                                                matching_abstime_expr: LimitedAbstimeExpression) -> AbstimeExpression:
@@ -180,8 +184,8 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             new_abstime_expr.value_lower_bound.year += tmp
             new_abstime_expr.value_upper_bound.year += tmp
         elif matching_abstime_expr.option == "gogo":
-            new_abstime_expr.value_lower_bound += 12
-            new_abstime_expr.value_upper_bound += 12
+            new_abstime_expr.value_lower_bound.hour += 12
+            new_abstime_expr.value_upper_bound.hour += 12
         elif matching_abstime_expr.option == "gozen":
             # 特に操作することはないのでpass
             pass
@@ -347,13 +351,13 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         elif target_time_position == "d":
             val_lb.day -= 1
             val_ub.day += 1
-        elif target_time_position == "H":
+        elif target_time_position == "h":
             val_lb.hour -= 1
             val_ub.hour += 1
-        elif target_time_position == "M":
+        elif target_time_position == "mn":
             val_lb.minute -= 5
             val_ub.minute += 5
-        elif target_time_position == "S":
+        elif target_time_position == "s":
             val_lb.second -= 5
             val_ub.second += 5
 
@@ -601,13 +605,13 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         elif time_position == "d":
             new_abstime_expr.value_lower_bound.day = integrate_abstime_expr.org_value_lower_bound
             new_abstime_expr.value_upper_bound.day = integrate_abstime_expr.org_value_upper_bound
-        elif time_position == "H":
+        elif time_position == "h":
             new_abstime_expr.value_lower_bound.hour = integrate_abstime_expr.org_value_lower_bound
             new_abstime_expr.value_upper_bound.hour = integrate_abstime_expr.org_value_upper_bound
-        elif time_position == "M":
+        elif time_position == "mn":
             new_abstime_expr.value_lower_bound.minute = integrate_abstime_expr.org_value_lower_bound
             new_abstime_expr.value_upper_bound.minute = integrate_abstime_expr.org_value_upper_bound
-        elif time_position == "S":
+        elif time_position == "s":
             new_abstime_expr.value_lower_bound.second = integrate_abstime_expr.org_value_lower_bound
             new_abstime_expr.value_upper_bound.second = integrate_abstime_expr.org_value_upper_bound
         elif time_position == "seiki":
@@ -691,3 +695,27 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             True：無限、False：無限でない
         """
         return time_elem_lower_bound == INF and time_elem_upper_bound == -INF
+
+    def numbers2expressions(self, numbers: List[NNumber]) -> List[AbstimeExpression]:
+        """抽出した数値表現を絶対時間表現のオブジェクトに変換する.
+
+        Parameters
+        ----------
+        numbers : List[NNumber]
+            抽出した数値表現
+
+        Returns
+        -------
+        List[AbstimeExpression]
+            絶対時間表現のオブジェクト
+        """
+        abstime_exprs: List[AbstimeExpression] = []
+        for number in numbers:
+            abstime_expr = AbstimeExpression(number)
+            abstime_expr.original_expr = number.original_expr
+            abstime_expr.position_start = number.position_start
+            abstime_expr.position_end = number.position_end
+
+            abstime_exprs.append(abstime_expr)
+
+        return abstime_exprs
