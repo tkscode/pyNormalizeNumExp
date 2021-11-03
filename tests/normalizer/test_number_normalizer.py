@@ -11,7 +11,7 @@ def number_normalizer():
 
 
 class TestNumberNormalizer:
-    def test_process(self, number_normalizer: NumberNormalizer):
+    def test_process_標準(self, number_normalizer: NumberNormalizer):
         res = number_normalizer.process("その3,244人が３，４５６，７８９円で百二十三万四千五百六十七円")
         expect = [NNumber("3,244", 2, 7), NNumber("３，４５６，７８９", 9, 18), NNumber("百二十三万四千五百六十七", 20, 32)]
         expect[0].value_lower_bound = expect[0].value_upper_bound = 3244
@@ -24,6 +24,72 @@ class TestNumberNormalizer:
                                    NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN,
                                    NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09]
         assert res == expect
+
+    def test_process_小数点あり(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("その3,244.15人が３，４５６，７８９．４５６円")
+        expect = [NNumber("3,244.15", 2, 10), NNumber("３，４５６，７８９．４５６", 12, 25)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 3244.15
+        expect[0].notation_type = [NotationType.HANKAKU]
+        expect[1].value_lower_bound = expect[1].value_upper_bound = 3456789.456
+        expect[1].notation_type = [NotationType.ZENKAKU]
+        assert res == expect
+
+        res = number_normalizer.process("131.1ポイントというスコアを叩き出した")
+        expect = [NNumber("131.1", 0, 5)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 131.1
+        expect[0].notation_type = [NotationType.HANKAKU, NotationType.HANKAKU, NotationType.HANKAKU]
+        assert res == expect
+
+        res = number_normalizer.process("9.3万円も損した")
+        expect = [NNumber("9.3万", 0, 4)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 93000
+        expect[0].notation_type = [NotationType.HANKAKU]
+        assert res == expect
+
+    def test_process_プラスあり(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("その+3,244人が＋３，４５６，７８９円でプラス百二十三万四千五百六十七円")
+        expect = [NNumber("+3,244", 2, 8), NNumber("＋３，４５６，７８９", 10, 20), NNumber("プラス百二十三万四千五百六十七", 22, 37)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 3244
+        expect[0].notation_type = [NotationType.HANKAKU]
+        expect[1].value_lower_bound = expect[1].value_upper_bound = 3456789
+        expect[1].notation_type = [NotationType.ZENKAKU]
+        expect[2].value_lower_bound = expect[2].value_upper_bound = 1234567
+        expect[2].notation_type = [NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN,
+                                   NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_MAN, NotationType.KANSUJI_09,
+                                   NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN,
+                                   NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09]
+        assert res == expect
+
+    def test_process_マイナスあり(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("その-3,244人がー３，４５６，７８９円でマイナス百二十三万四千五百六十七円")
+        expect = [NNumber("-3,244", 2, 8), NNumber("ー３，４５６，７８９", 10, 20), NNumber("マイナス百二十三万四千五百六十七", 22, 38)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = -3244
+        expect[0].notation_type = [NotationType.HANKAKU]
+        expect[1].value_lower_bound = expect[1].value_upper_bound = -3456789
+        expect[1].notation_type = [NotationType.ZENKAKU]
+        expect[2].value_lower_bound = expect[2].value_upper_bound = -1234567
+        expect[2].notation_type = [NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN,
+                                   NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_MAN, NotationType.KANSUJI_09,
+                                   NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN,
+                                   NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN, NotationType.KANSUJI_09]
+        assert res == expect
+
+    def test_process_範囲あり(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("その10~20人が、１００〜２００円で")
+        expect = [NNumber("10~20", 2, 7), NNumber("１００〜２００", 10, 17)]
+        expect[0].value_lower_bound = 10
+        expect[0].value_upper_bound = 20
+        expect[0].notation_type = [NotationType.HANKAKU, NotationType.HANKAKU]
+        expect[1].value_lower_bound = 100
+        expect[1].value_upper_bound = 200
+        expect[1].notation_type = [NotationType.ZENKAKU, NotationType.ZENKAKU, NotationType.ZENKAKU]
+        assert res == expect
+
+    def test_process_数値なし(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("あいうえお")
+        assert res == []
+
+    # TODO https://github.com/cotogoto/normalize-numexp/blob/main/test/jp/livlog/numexp/numberNormalizer/NumberNormalizerTest.java#L265-L409
 
     def test_suffix_is_arabic(self, number_normalizer: NumberNormalizer):
         res = number_normalizer.suffix_is_arabic("10")

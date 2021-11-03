@@ -220,7 +220,7 @@ class SymbolFixer(object):
         plus_expr = self.extract_plus(text, number.position_start-1)
         if plus_expr:
             new_number.original_expr = plus_expr + number.original_expr
-            new_number.position_start -= 1
+            new_number.position_start -= len(plus_expr)
 
             return new_number
 
@@ -229,7 +229,7 @@ class SymbolFixer(object):
             new_number.original_expr = minus_expr + number.original_expr
             new_number.value_lower_bound *= -1
             new_number.value_upper_bound *= -1
-            new_number.position_start -= 1
+            new_number.position_start -= len(minus_expr)
 
             return new_number
 
