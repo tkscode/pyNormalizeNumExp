@@ -190,14 +190,14 @@ class NormalizerUtility(object):
 
         Notes
         -----
-            S: 秒、M: 分、H: 時、d: 日、m: 月、 y: 年
+            s: 秒、mn: 分、h: 時、d: 日、m: 月、 y: 年
         """
         if self.is_finite(time.second):
-            return "S"
+            return "s"
         elif self.is_finite(time.minute):
-            return "M"
+            return "mn"
         elif self.is_finite(time.hour):
-            return "H"
+            return "h"
         elif self.is_finite(time.day):
             return "d"
         elif self.is_finite(time.month):

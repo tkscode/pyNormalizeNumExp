@@ -114,9 +114,8 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             new_abstime_expr.value_lower_bound.month = abstime_expr.value_lower_bound.day
             new_abstime_expr.value_upper_bound.month = abstime_expr.value_upper_bound.day
             new_abstime_expr.value_lower_bound.day = INF
-            new_abstime_expr.value_upper_bound = -INF
+            new_abstime_expr.value_upper_bound.day = -INF
         else:
-            # raise ValueError(f'Not supported process type "{process_type}"')
             pass
 
         return new_abstime_expr
@@ -456,7 +455,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         if target_time_position == "y":
             if val_lb.year != val_ub.year:
                 # 「18世紀中盤」のような場合
-                tmp = (val_ub - val_lb) // 4
+                tmp = (val_ub.year - val_lb.year) // 4
                 val_lb.year += tmp
                 val_ub.year -= tmp
             else:
@@ -494,7 +493,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
         if target_time_position == "m":
             val_lb.day = 1
-            val_lb.day = 10
+            val_ub.day = 10
 
         return val_lb, val_ub
 
@@ -516,7 +515,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
         if target_time_position == "m":
             val_lb.day = 11
-            val_lb.day = 20
+            val_ub.day = 20
 
         return val_lb, val_ub
 
@@ -538,7 +537,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         target_time_position = self.normalizer_utility.identify_time_detail(abstime_expr.value_lower_bound)
         if target_time_position == "m":
             val_lb.day = 21
-            val_lb.day = 31
+            val_ub.day = 31
 
         return val_lb, val_ub
 
