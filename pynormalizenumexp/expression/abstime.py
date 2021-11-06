@@ -1,9 +1,17 @@
 """絶対時間の表現定義モジュール."""
+import typing
+from typing import Union
+
 from .base import INF, NNumber, NormalizedExpression, NTime
 
 
 class AbstimeExpression(NormalizedExpression):
     """絶対時間の表現クラス."""
+
+    value_lower_bound: NTime
+    value_upper_bound: NTime
+    org_value_lower_bound: Union[int, float]
+    org_value_upper_bound: Union[int, float]
 
     def __init__(self, number: NNumber):
         """コンストラクタ.
@@ -17,8 +25,8 @@ class AbstimeExpression(NormalizedExpression):
 
         self.org_value_lower_bound = number.value_lower_bound
         self.org_value_upper_bound = number.value_upper_bound
-        self.value_lower_bound = NTime(value=INF)
-        self.value_upper_bound = NTime(value=-INF)
+        self.value_lower_bound = NTime(INF)
+        self.value_upper_bound = NTime(-INF)
         self.ordinary = False
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
@@ -26,6 +34,7 @@ class AbstimeExpression(NormalizedExpression):
             and self.org_value_lower_bound == o.org_value_lower_bound \
             and self.org_value_upper_bound == o.org_value_upper_bound
 
+    @typing.no_type_check
     def __str__(self, only_params: bool = False) -> str:  # noqa: D105
         params = super().__str__(only_params=True)
         params.update({

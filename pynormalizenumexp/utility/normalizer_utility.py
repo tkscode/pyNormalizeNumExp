@@ -173,7 +173,7 @@ class NormalizerUtility(object):
         -----
             Nullの場合はNTimeのすべての属性がINFまたは-INFになっている
         """
-        return time == NTime(value=INF) or time == NTime(value=-INF)
+        return time == NTime(INF) or time == NTime(-INF)
 
     def identify_time_detail(self, time: NTime) -> str:
         """与えられた時間オブジェクトがどの単位のものかを判定する.

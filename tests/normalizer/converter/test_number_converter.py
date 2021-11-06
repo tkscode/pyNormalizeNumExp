@@ -24,19 +24,13 @@ class TestNumberConverter:
         res = number_converter.split_by_kansuji_kurai("一億と二千年前からあいうえお")
         expect = [
             ("一", "億"),
-            ("と二", "千"),
-            ("年前からあいうえお", "　")
+            ("と二千年前からあいうえお", "　")
         ]
         assert res == expect
 
         res = number_converter.split_by_kansuji_kurai("百二十三万四千五百六十七")
         expect = [
-            ("", "百"),
-            ("二", "十"),
-            ("三", "万"),
-            ("四", "千"),
-            ("五", "百"),
-            ("六", "十"),
-            ("七", "　")
+            ("百二十三", "万"),
+            ("四千五百六十七", "　")
         ]
         assert res == expect

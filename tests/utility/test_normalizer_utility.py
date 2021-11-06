@@ -72,38 +72,37 @@ class TestNormalizerUtility:
         assert res == False
 
     def test_is_null_time(self, normalizer_utility: NormalizerUtility):
-        res = normalizer_utility.is_null_time(NTime(value=float("inf")))
+        res = normalizer_utility.is_null_time(NTime(float("inf")))
         assert res == True
 
-        res = normalizer_utility.is_null_time(NTime(value=1))
+        res = normalizer_utility.is_null_time(NTime(1))
         assert res == False
 
     def test_identify_time_detail(self, normalizer_utility: NormalizerUtility):
-        t = NTime(year=1, month=1, day=1, hour=1, minute=1, second=1)
+        t = NTime(1, 1, 1, 1, 1, 1)
         res = normalizer_utility.identify_time_detail(t)
-        assert res == "S"
+        assert res == "s"
 
-        t = NTime(year=1, month=1, day=1, hour=1, minute=1, second=float("inf"))
+        t = NTime(1, 1, 1, 1, 1, float("inf"))
         res = normalizer_utility.identify_time_detail(t)
-        assert res == "M"
+        assert res == "mn"
 
-        t = NTime(year=1, month=1, day=1, hour=1, minute=float("inf"), second=float("inf"))
+        t = NTime(1, 1, 1, 1, float("inf"), float("inf"))
         res = normalizer_utility.identify_time_detail(t)
-        assert res == "H"
+        assert res == "h"
 
-        t = NTime(year=1, month=1, day=1, hour=float("inf"), minute=float("inf"), second=float("inf"))
+        t = NTime(1, 1, 1, float("inf"), float("inf"), float("inf"))
         res = normalizer_utility.identify_time_detail(t)
         assert res == "d"
 
-        t = NTime(year=1, month=1, day=float("inf"), hour=float("inf"), minute=float("inf"), second=float("inf"))
+        t = NTime(1, 1, float("inf"), float("inf"), float("inf"), float("inf"))
         res = normalizer_utility.identify_time_detail(t)
         assert res == "m"
 
-        t = NTime(year=1, month=float("inf"), day=float("inf"),
-                  hour=float("inf"), minute=float("inf"), second=float("inf"))
+        t = NTime(1, float("inf"), float("inf"), float("inf"), float("inf"), float("inf"))
         res = normalizer_utility.identify_time_detail(t)
         assert res == "y"
 
-        t = NTime(value=float("inf"))
+        t = NTime(float("inf"))
         res = normalizer_utility.identify_time_detail(t)
         assert res == ""

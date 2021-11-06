@@ -20,7 +20,7 @@ class DigitUtility(object):
         """
         self.dict_loader = dict_loader
 
-        self.str_to_notation_type: Dict[str, int] = {}
+        self.str_to_notation_type: Dict[str, NotationType] = {}
         self.kansuji_09_to_value: Dict[str, int] = {}
         self.kansuji_kurai_to_power_val: Dict[str, int] = {}
 
@@ -104,14 +104,14 @@ class DigitUtility(object):
         """
         return self.is_hankakusuji(chars) or self.is_zenkakusuji(chars)
 
-    def is_notation_type(self, chars: Optional[str], notation_type: int) -> bool:
+    def is_notation_type(self, chars: Optional[str], notation_type: NotationType) -> bool:
         """与えられた文字列が指定された数字種かどうか判定する.
 
         Parameters
         ----------
         chars : Optional[str]
             判定対象の文字列
-        notation_type : int
+        notation_type : NotationType
             指定された数字種
 
         Returns
@@ -278,7 +278,7 @@ class DigitUtility(object):
 
         return self.kansuji_kurai_to_power_val[chars]
 
-    def chars2notation_type(self, chars: Optional[str]) -> int:
+    def chars2notation_type(self, chars: Optional[str]) -> NotationType:
         """与えられた文字列がどの数字種か調べる（数字種省略版）.
 
         Parameters
@@ -300,7 +300,7 @@ class DigitUtility(object):
         else:
             return NotationType.NOT_NUMBER
 
-    def chars2full_notation_type(self, chars: Optional[str]) -> int:
+    def chars2full_notation_type(self, chars: Optional[str]) -> NotationType:
         """与えられた文字列がどの数字種か調べる（全数字種版）.
 
         Parameters

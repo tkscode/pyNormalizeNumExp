@@ -1,8 +1,7 @@
 """各種ノーマライザの基底クラス定義モジュール."""
 from copy import deepcopy
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
-from pynormalizenumexp.expression.abstime import AbstimeExpression
 from pynormalizenumexp.expression.base import LimitedExpression, NNumber, NormalizedExpression, NumberModifier
 from pynormalizenumexp.utility.dict_loader import DictLoader
 from pynormalizenumexp.utility.normalizer_utility import NormalizerUtility
@@ -22,8 +21,8 @@ class BaseNormalizer(object):
         self.dict_loader = dict_loader
         self.normalizer_utility = NormalizerUtility()
 
-        self.limited_expressions: List[LimitedExpression] = []
-        self.prefix_counters: List[LimitedExpression] = []
+        self.limited_expressions: Sequence[LimitedExpression] = []
+        self.prefix_counters: Sequence[LimitedExpression] = []
         self.prefix_number_modifier: List[NumberModifier] = []
         self.suffix_number_modifier: List[NumberModifier] = []
 
@@ -37,12 +36,12 @@ class BaseNormalizer(object):
         """辞書ファイルの読み込み."""
         raise NotImplementedError()
 
-    def build_patterns(self, expressions: List[NormalizedExpression]) -> Dict[str, int]:
+    def build_patterns(self, expressions: Sequence[Union[LimitedExpression, NormalizedExpression]]) -> Dict[str, int]:
         """パターンオブジェクトからパターン文字列をパターンIDのマップを作成する.
 
         Parameters
         ----------
-        expressions : List[NormalizedExpression]
+        expressions : Sequence[Union[LimitedExpression, NormalizedExpression]]
             パターンオブジェクト
 
         Returns
@@ -79,7 +78,7 @@ class BaseNormalizer(object):
         while i < len(expressions):
             # 変換済みの数値表現を正規化する
             normalized_id, new_expressions = self.normalize_limited_expression(replaced_text, expressions, i)
-            if normalized_id == -1:
+            if new_expressions is None:
                 # TODO 単位が存在しなかった場合の処理をどうするか要検討
                 pass
             else:
@@ -117,7 +116,7 @@ class BaseNormalizer(object):
         """テキストから数値表現を抽出する."""
         raise NotImplementedError()
 
-    def numbers2expressions(numbers: List[NNumber]) -> List[NormalizedExpression]:
+    def numbers2expressions(self, numbers: List[NNumber]) -> List[NormalizedExpression]:
         """数値表現を適切な表現（絶対時間など）に変換する."""
         raise NotImplementedError()
 
@@ -167,9 +166,9 @@ class BaseNormalizer(object):
 
         return matching_pattern_id
 
-    def revise_expr_by_matching_limited_expression(self, exprs: List[NormalizedExpression],
-                                                   expr_id: int,
-                                                   matching_expr: NormalizedExpression) -> List[NormalizedExpression]:
+    def revise_expr_by_matching_limited_expression(self, exprs: Sequence[NormalizedExpression], expr_id: int,
+                                                   matching_expr: LimitedExpression) \
+            -> List[NormalizedExpression]:
         """マッチした数値表現の補正を行う."""
         raise NotImplementedError()
 
@@ -230,8 +229,8 @@ class BaseNormalizer(object):
         return new_expr
 
     def normalize_limited_expression(self, replaced_text: str,
-                                     exprs: List[NormalizedExpression], expr_id: int) \
-            -> Tuple[int, Optional[List[AbstimeExpression]]]:
+                                     exprs: Sequence[NormalizedExpression], expr_id: int) \
+            -> Tuple[int, Optional[List[NormalizedExpression]]]:
         """抽出された数値表現の正規化.
 
         Parameters
@@ -245,7 +244,7 @@ class BaseNormalizer(object):
 
         Returns
         -------
-        Tuple[int, Optional[List[AbstimeExpression]]]
+        Tuple[int, Optional[List[NormalizedExpression]]]
             マッチしたパターン辞書のIDと正規化された数値表現（マッチするものがなければNoneを返す）
         """
         # どの表現パターンにマッチするか検索する
@@ -260,7 +259,8 @@ class BaseNormalizer(object):
 
         return expr_id, new_exprs
 
-    def normalize_prefix_counter(self, replaced_text: str, expr: NormalizedExpression) -> Optional[AbstimeExpression]:
+    def normalize_prefix_counter(self, replaced_text: str, expr: NormalizedExpression) \
+            -> Optional[NormalizedExpression]:
         """数値表現の直前に出現する単位表現の正規化.
 
         Parameters
@@ -333,11 +333,12 @@ class BaseNormalizer(object):
         return self.revise_expr_by_matching_suffix_number_modifier(
             expr, self.suffix_number_modifier[matching_pattern_id])
 
-    def fix_by_range_expression(self, text: str, exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+    def fix_by_range_expression(self, text: str, exprs: Sequence[NormalizedExpression]) \
+            -> List[NormalizedExpression]:
         """範囲表現の修正を行う."""
         raise NotImplementedError()
 
-    def delete_not_expression(self, exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+    def delete_not_expression(self, exprs: Sequence[NormalizedExpression]) -> List[NormalizedExpression]:
         """特定条件下の数値表現を削除する."""
         raise NotImplementedError()
 

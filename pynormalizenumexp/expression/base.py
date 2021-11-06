@@ -1,8 +1,7 @@
 """各種表現パターンクラスの定義モジュール."""
+import typing
 from enum import Enum
-from typing import Final, List, Optional, Union
-
-from pynormalizenumexp.utility.custom_type import NTimeInitDict
+from typing import Any, Dict, Final, List, Optional, Union
 
 # 定数定義
 INF: Final[float] = float("inf")
@@ -22,20 +21,26 @@ class NotationType(Enum):
     HANKAKU = 16
 
 
-class NTime(object):
+class NTime:
     """時間情報を保持するためのクラス."""
 
-    def __init__(self, **kwargs: NTimeInitDict):
+    @typing.overload
+    def __init__(self, value: Union[int, float]) -> None:
         """コンストラクタ."""
-        if "value" in kwargs:
-            self.year = self.month = self.day = self.hour = self.minute = self.second = kwargs["value"]
-        else:
-            self.year = kwargs["year"]
-            self.month = kwargs["month"]
-            self.day = kwargs["day"]
-            self.hour = kwargs["hour"]
-            self.minute = kwargs["minute"]
-            self.second = kwargs["second"]
+        ...
+
+    @typing.overload
+    def __init__(self, year: Union[int, float], month: Union[int, float], day: Union[int, float],
+                 hour: Union[int, float], minute: Union[int, float], second: Union[int, float]) -> None:
+        """コンストラクタ."""
+        ...
+
+    def __init__(self, *args) -> None:  # type: ignore
+        """コンストラクタ."""
+        try:
+            self.year, self.month, self.day, self.hour, self.minute, self.second = args
+        except ValueError:
+            self.year = self.month = self.day = self.hour = self.minute = self.second = args[0]
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
         if not isinstance(o, NTime):
@@ -44,7 +49,8 @@ class NTime(object):
         return o.year == self.year and o.month == self.month and o.day == self.day \
             and o.hour == self.hour and o.minute == self.minute and o.second == self.second
 
-    def __str__(self, only_params: bool = False) -> str:  # noqa: D105
+    @typing.no_type_check
+    def __str__(self, only_params: bool = False) -> Union[str, Dict[str, int]]:  # noqa: D105
         params = {
             "year": self.year,
             "month": self.month,
@@ -64,12 +70,12 @@ class NTime(object):
 class BaseExpression(object):
     """各種表現の基底クラス."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """コンストラクタ."""
-        self.original_expr: Optional[str] = None
-        self.position_start: Optional[int] = None
-        self.position_end: Optional[int] = None
-        self.pattern: Optional[str] = None
+        self.original_expr: str = ""
+        self.position_start: int = -1
+        self.position_end: int = -1
+        self.pattern: str = ""
         self.value_lower_bound: Optional[Union[float, NTime]] = None
         self.value_upper_bound: Optional[Union[float, NTime]] = None
 
@@ -82,7 +88,8 @@ class BaseExpression(object):
             and self.value_lower_bound == o.value_lower_bound \
             and self.value_upper_bound == o.value_upper_bound
 
-    def __str__(self, only_params: bool = False) -> str:  # noqa: D105
+    @typing.no_type_check
+    def __str__(self, only_params: bool = False) -> Union[str, Dict[str, Any]]:  # noqa: D105
         params = {
             "original_expr": self.original_expr,
             "position_start": self.position_start,
@@ -102,17 +109,17 @@ class BaseExpression(object):
 class LimitedExpression(BaseExpression):
     """狭義の各種表現の基底クラス."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """コンストラクタ."""
         super().__init__()
 
-        self.ordinary: Optional[bool] = None
-        self.option: Optional[str] = None
+        self.ordinary: bool = False
+        self.option: str = ""
         # patternが含むPLACE_HOLDERの数（*月*日 -> 2個）
-        self.total_number_of_place_holder: Optional[int] = None
+        self.total_number_of_place_holder: int = 0
         # pattern中の最後のPLACE_HOLDERの後に続く文字列の長さ（*月*日 -> 1）
         # -> positionの同定に必要
-        self.len_of_after_final_place_holder: Optional[int] = None
+        self.len_of_after_final_place_holder: int = 0
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
         return isinstance(o, LimitedExpression) and super().__eq__(o) \
@@ -121,6 +128,7 @@ class LimitedExpression(BaseExpression):
             and self.total_number_of_place_holder == o.total_number_of_place_holder \
             and self.len_of_after_final_place_holder == o.len_of_after_final_place_holder
 
+    @typing.no_type_check
     def __str__(self, only_params: bool = False) -> str:  # noqa: D105
         params = super().__str__(only_params=True)
         params.update({
@@ -136,21 +144,26 @@ class LimitedExpression(BaseExpression):
 
         return f'{self.__class__}({str_params})'
 
-    def set_total_number_of_place_holder(self):
+    def set_total_number_of_place_holder(self) -> None:
         """パターン文字列中に出現したPlace holderをカウント."""
-        self.total_number_of_place_holder = self.pattern.count(PLACE_HOLDER)
+        if self.pattern:
+            self.total_number_of_place_holder = self.pattern.count(PLACE_HOLDER)
 
-    def set_len_of_after_final_place_holder(self):
+    def set_len_of_after_final_place_holder(self) -> None:
         """パターン文字列中にPlace holderが最後に出現した位置より後のパターン文字列の長さを取得."""
-        idx = self.pattern.rfind(PLACE_HOLDER)
-        if idx > -1:
-            self.len_of_after_final_place_holder = len(self.pattern[idx+1:])
-        else:
-            self.len_of_after_final_place_holder = len(self.pattern)
+        if self.pattern:
+            idx = self.pattern.rfind(PLACE_HOLDER)
+            if idx > -1:
+                self.len_of_after_final_place_holder = len(self.pattern[idx+1:])
+            else:
+                self.len_of_after_final_place_holder = len(self.pattern)
 
 
 class NNumber(BaseExpression):
     """任意の数値表現のクラス."""
+
+    value_lower_bound: Union[int, float]
+    value_upper_bound: Union[int, float]
 
     def __init__(self, original_expr: str = "", position_start: int = -1, position_end: int = -1) -> None:
         """コンストラクタ.
@@ -170,14 +183,15 @@ class NNumber(BaseExpression):
         self.position_start = position_start
         self.position_end = position_end
 
-        self.value_lower_bound: float = INF
-        self.value_upper_bound: float = -INF
-        self.notation_type: List[int] = []
+        self.value_lower_bound = INF
+        self.value_upper_bound = -INF
+        self.notation_type: List[NotationType] = []
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
         return isinstance(o, NNumber) and super().__eq__(o) \
             and self.notation_type == o.notation_type
 
+    @typing.no_type_check
     def __str__(self, only_params: bool = False) -> str:  # noqa:D105
         params = super().__str__(only_params=True)
         params.update({"notation_type": self.notation_type})
@@ -210,7 +224,7 @@ class NormalizedExpression(BaseExpression):
         self.position_start = position_start
         self.position_end = position_end
 
-        self.number_notation_type: int = NotationType.NOT_NUMBER
+        self.number_notation_type: NotationType = NotationType.NOT_NUMBER
         self.include_lower_bound: bool = True
         self.include_upper_bound: bool = True
         self.is_over: bool = False
@@ -228,6 +242,7 @@ class NormalizedExpression(BaseExpression):
             and self.ordinary == o.ordinary \
             and self.options == o.options
 
+    @typing.no_type_check
     def __str__(self, only_params: bool = False) -> str:  # noqa: D105
         params = super().__str__(only_params=True)
         params.update({
@@ -281,6 +296,7 @@ class NumberModifier(NormalizedExpression):
             and self.pattern == o.pattern \
             and self.process_type == o.process_type
 
+    @typing.no_type_check
     def __str__(self, only_params: bool = False) -> str:  # noqa: D105
         params = {
             "pattern": self.pattern,
