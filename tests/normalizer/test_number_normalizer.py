@@ -123,7 +123,29 @@ class TestNumberNormalizer:
         expect[1].notation_type = [NotationType.KANSUJI_09, NotationType.KANSUJI_KURAI_SEN]
         assert res == expect
 
-    # TODO https://github.com/cotogoto/normalize-numexp/blob/main/test/jp/livlog/numexp/numberNormalizer/NumberNormalizerTest.java#L349-L409
+    def test_process_real(self, number_normalizer: NumberNormalizer):
+        res = number_normalizer.process("京・京")
+        assert res == []
+
+        res = number_normalizer.process("七〇〇万")
+        expect = [NNumber("七〇〇万", 0, 4)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 7000000
+        expect[0].notation_type = [NotationType.KANSUJI_09, NotationType.KANSUJI_09, NotationType.KANSUJI_09,
+                                   NotationType.KANSUJI_KURAI_MAN]
+        assert res == expect
+
+        res = number_normalizer.process("7000千人")
+        expect = [NNumber("7000千", 0, 5)]
+        expect[0].value_lower_bound = expect[0].value_upper_bound = 7000000
+        expect[0].notation_type = [NotationType.HANKAKU, NotationType.HANKAKU, NotationType.HANKAKU,
+                                   NotationType.HANKAKU, NotationType.KANSUJI_KURAI_SEN]
+        assert res == expect
+
+        res = number_normalizer.process("京京億億万万京億万")
+        assert res == []
+
+        res = number_normalizer.process("そうだ、京都いこう")
+        assert res == []
 
     def test_suffix_is_arabic(self, number_normalizer: NumberNormalizer):
         res = number_normalizer.suffix_is_arabic("10")

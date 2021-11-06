@@ -369,14 +369,13 @@ class NumberNormalizer(object):
         List[NNumber]
             削除処理後の数値表現
         """
-        # 逆から見ていくので、先にreversedで逆順にしている
-        new_numbers = list(reversed(deepcopy(numbers)))
+        new_numbers = deepcopy(numbers)
         for i, number in enumerate(new_numbers):
             if self.is_only_kansuji_kurai_man(number.original_expr):
-                del(new_numbers[i])
+                new_numbers[i] = None  # type: ignore
 
         # 逆順にしていたのでもと順番に戻す
-        return list(reversed(new_numbers))
+        return [number for number in new_numbers if number]
 
     def remove_unnecessary_data(self, numbers: List[NNumber]) -> List[NNumber]:
         """重複するような不要なデータを削除する.
