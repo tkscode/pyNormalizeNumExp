@@ -1,5 +1,4 @@
 """絶対時間の抽出・正規化処理を定義するモジュール."""
-import typing
 from copy import deepcopy
 from typing import List, Tuple
 
@@ -37,7 +36,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         Parameters
         ----------
         limited_expr_dict_file : str
-            狭義の表現を定義した辞書ファイル名
+            絶対時間のパターンを定義した辞書ファイル名
         prefix_counter_dict_file : str
             接頭表現（単位や年代など）を定義した辞書ファイル名
         prefix_number_modifier_dict_file : str
@@ -264,8 +263,8 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return new_expr
 
-    @typing.no_type_check
-    def delete_not_expression(self, exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+    def delete_not_expression(self,  # type: ignore[override]
+                              exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
         """時間オブジェクトがNullの絶対時間表現を削除する.
 
         Parameters
@@ -281,7 +280,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         for i in range(len(exprs)):
             if self.normalizer_utility.is_null_time(exprs[i].value_lower_bound) \
                     and self.normalizer_utility.is_null_time(exprs[i].value_upper_bound):
-                exprs[i] = None
+                exprs[i] = None  # type: ignore
 
         return [expr for expr in exprs if expr]
 
@@ -302,8 +301,6 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             修正後の絶対時間表現
         """
         for i in range(len(exprs) - 1):
-            if exprs[i] is None:
-                continue
             if not self.have_kara_suffix(exprs[i].options) \
                     or not self.have_kara_prefix(exprs[i+1].options) \
                     or exprs[i].position_end + 2 < exprs[i+1].position_start:
@@ -710,13 +707,4 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         List[AbstimeExpression]
             絶対時間表現のオブジェクト
         """
-        abstime_exprs: List[AbstimeExpression] = []
-        for number in numbers:
-            abstime_expr = AbstimeExpression(number)
-            abstime_expr.original_expr = number.original_expr
-            abstime_expr.position_start = number.position_start
-            abstime_expr.position_end = number.position_end
-
-            abstime_exprs.append(abstime_expr)
-
-        return abstime_exprs
+        return [AbstimeExpression(number) for number in numbers]

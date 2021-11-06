@@ -107,7 +107,7 @@ class BaseExpression(object):
 
 
 class LimitedExpression(BaseExpression):
-    """狭義の各種表現の基底クラス."""
+    """パターン辞書用の各種表現の基底クラス."""
 
     def __init__(self) -> None:
         """コンストラクタ."""

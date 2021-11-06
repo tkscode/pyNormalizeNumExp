@@ -14,6 +14,16 @@ ChineseCharacterDict = TypedDict("ChineseCharacterDict", {
     "notation_type": str
 })
 
+# 時間系以外の表現パターン辞書
+CounterDict = TypedDict("CounterDict", {
+    "pattern": str,
+    "counter": str,
+    "SI_prefix": int,
+    "optional_power_of_ten": int,
+    "ordinary": bool,
+    "option": str
+})
+
 # 絶対時間の表現パターン辞書
 LimitedAbstimeExpressionDict = TypedDict("LimitedAbstimeExpressionDict", {
     "pattern": str,

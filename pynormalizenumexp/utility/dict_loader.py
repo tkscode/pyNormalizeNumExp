@@ -6,9 +6,10 @@ from typing import Final, List
 
 import pynormalizenumexp
 from pynormalizenumexp.expression.base import NumberModifier
+from pynormalizenumexp.expression.counter import Counter
 from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
 
-from .custom_type import ChineseCharacterDict, LimitedAbstimeExpressionDict, NumberModifierDict
+from .custom_type import ChineseCharacterDict, CounterDict, LimitedAbstimeExpressionDict, NumberModifierDict
 
 BASE_DICT_PKG: Final[str] = "resources.dict"
 
@@ -33,6 +34,7 @@ class DictLoader(object):
         language : str
             利用言語（ja | en）
         """
+        # TODO ja, en, zh以外はエラーになるようにする
         self.language = language
 
     def load_chinese_character_dict(self, dict_file: str) -> List[ChineseCharacter]:
@@ -52,6 +54,36 @@ class DictLoader(object):
             characters: List[ChineseCharacterDict] = json.load(fp)["characters"]
             load_target = [ChineseCharacter(character=char["character"], value=char["value"],
                                             notation_type=char["notation_type"]) for char in characters]
+
+        return load_target
+
+    def load_counter_expr_dict(self, dict_file: str) -> List[Counter]:
+        """時間系以外のパターン辞書の読み込み.
+
+        Parameters
+        ----------
+        dict_file : str
+            辞書ファイル名
+
+        Returns
+        -------
+        List[Counter]
+            時間系以外のパターン情報のリスト
+        """
+        def make_expression(pattern: CounterDict) -> Counter:
+            expr = Counter()
+            expr.pattern = pattern["pattern"]
+            expr.counter = pattern["counter"]
+            expr.si_prefix = pattern["SI_prefix"]
+            expr.optional_power_of_ten = pattern["optional_power_of_ten"]
+            expr.ordinary = pattern["ordinary"]
+            expr.option = pattern["option"]
+
+            return expr
+
+        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
+            patterns: List[CounterDict] = json.load(fp)["patterns"]
+            load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 

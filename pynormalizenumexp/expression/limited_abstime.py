@@ -1,4 +1,4 @@
-"""狭義の絶対時間表現クラスの定義モジュール."""
+"""パターン辞書用の絶対時間表現クラスの定義モジュール."""
 import typing
 from typing import List
 
@@ -6,7 +6,7 @@ from .base import LimitedExpression
 
 
 class LimitedAbstimeExpression(LimitedExpression):
-    """狭義の絶対時間表現クラス."""
+    """パターン辞書用の絶対時間表現クラス."""
 
     def __init__(self) -> None:
         """コンストラクタ."""
