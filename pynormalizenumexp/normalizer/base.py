@@ -107,6 +107,9 @@ class BaseNormalizer(object):
         # 範囲表現の処理
         expressions = self.fix_by_range_expression(text, expressions)
 
+        # 「から」表現の修正
+        expressions = self.fix_kara_expression(expressions)
+
         # 規格化されなかったnumberを削除
         expressions = self.delete_not_expression(expressions)
 
@@ -341,6 +344,36 @@ class BaseNormalizer(object):
     def delete_not_expression(self, exprs: Sequence[NormalizedExpression]) -> List[NormalizedExpression]:
         """特定条件下の数値表現を削除する."""
         raise NotImplementedError()
+
+    def fix_kara_expression(self, exprs: Sequence[NormalizedExpression]) -> List[NormalizedExpression]:
+        """「から」表現のみがついてしまうのを修正する.
+
+        Parameters
+        ----------
+        exprs : Sequence[NormalizedExpression]
+            抽出された数値表現
+
+        Returns
+        -------
+        List[NormalizedExpression]
+            修正後の数値表現
+        """
+        new_exprs = deepcopy(exprs)
+        for i, expr in enumerate(new_exprs):
+            if expr.original_expr.startswith("から"):
+                expr.original_expr = expr.original_expr[2:]
+                expr.position_start += 2
+                # optionsに入っているkara_prefixを削除
+                del(expr.options[0])
+            elif expr.original_expr.endswith("から"):
+                expr.original_expr = expr.original_expr[:-2]
+                expr.position_end -= 2
+                # optionsに入っているkara_suffixを削除
+                del(expr.options[-1])
+
+            new_exprs[i] = expr
+
+        return new_exprs
 
     def have_kara_prefix(self, options: List[str]) -> bool:
         """抽出した数値表現のオプションに kara_prefix が含まれているかをチェックする.

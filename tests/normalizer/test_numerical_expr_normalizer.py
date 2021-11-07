@@ -131,11 +131,9 @@ class TestNumericalExpressionNormalizer:
         assert res == expect
 
         res = numerical_expr_normalizer.process("世界50カ国から3000人が出席予定だ")
-        expect = [NumericalExpression("50カ国から", 2, 8, 50, 50), NumericalExpression("から3000人", 6, 13, 3000, 3000)]
+        expect = [NumericalExpression("50カ国", 2, 6, 50, 50), NumericalExpression("3000人", 8, 13, 3000, 3000)]
         expect[0].counter = "カ国"
-        expect[0].options = ["kara_suffix"]
         expect[1].counter = "人"
-        expect[1].options = ["kara_prefix"]
         assert res == expect
 
         res = numerical_expr_normalizer.process("およそ時速50km～60kmくらい")
@@ -145,9 +143,8 @@ class TestNumericalExpressionNormalizer:
 
     def test_process_real(self, numerical_expr_normalizer: NumericalExpressionNormalizer):
         res = numerical_expr_normalizer.process("外国から30匹の鳥がきた")
-        expect = [NumericalExpression("から30匹", 2, 7, 30, 30)]
+        expect = [NumericalExpression("30匹", 4, 7, 30, 30)]
         expect[0].counter = "匹"
-        expect[0].options = ["kara_prefix"]
         assert res == expect
 
         res = numerical_expr_normalizer.process("数十人が十数人と喧嘩して、百数十円落とした")

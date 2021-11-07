@@ -35,14 +35,13 @@ class TestReltimeExpressionNormalizer:
         assert res == expect
 
         res = reltime_expr_normalizer.process("今から36万年前………いや、1万4000年前だった")
-        expect = [ReltimeExpression(NNumber("から36万年前", 1, 8)), ReltimeExpression(NNumber("1万4000年前", 14, 22))]
+        expect = [ReltimeExpression(NNumber("36万年前", 3, 8)), ReltimeExpression(NNumber("1万4000年前", 14, 22))]
         expect[0].org_value_lower_bound = expect[0].org_value_upper_bound = 360000
         expect[0].value_lower_bound_rel = NTime(INF)
         expect[0].value_lower_bound_abs = NTime(INF)
         expect[0].value_upper_bound_rel = NTime(-INF)
         expect[0].value_upper_bound_abs = NTime(-INF)
         expect[0].value_lower_bound_rel.year = expect[0].value_upper_bound_rel.year = -360000
-        expect[0].options = ["kara_prefix"]
         expect[1].org_value_lower_bound = expect[1].org_value_upper_bound = 14000
         expect[1].value_lower_bound_rel = NTime(INF)
         expect[1].value_lower_bound_abs = NTime(INF)
@@ -53,14 +52,13 @@ class TestReltimeExpressionNormalizer:
 
     def test_process_range(self, reltime_expr_normalizer: ReltimeExpressionNormalizer):
         res = reltime_expr_normalizer.process("1万年と2千年前からああああ")
-        expect = [ReltimeExpression(NNumber("2千年前から", 4, 10))]
+        expect = [ReltimeExpression(NNumber("2千年前", 4, 8))]
         expect[0].org_value_lower_bound = expect[0].org_value_upper_bound = 2000
         expect[0].value_lower_bound_rel = NTime(INF)
         expect[0].value_lower_bound_abs = NTime(INF)
         expect[0].value_upper_bound_rel = NTime(-INF)
         expect[0].value_upper_bound_abs = NTime(-INF)
         expect[0].value_lower_bound_rel.year = expect[0].value_upper_bound_rel.year = -2000
-        expect[0].options = ["kara_suffix"]
         assert res == expect
 
         res = reltime_expr_normalizer.process("1万2千年前から1億2千年後までああああ")
