@@ -14,6 +14,9 @@ from .number_normalizer import NumberNormalizer
 class AbstimeExpressionNormalizer(BaseNormalizer):
     """絶対時間の抽出・正規化を行うクラス."""
 
+    limited_expressions: List[LimitedAbstimeExpression]
+    prefix_counters: List[LimitedAbstimeExpression]
+
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
 
@@ -72,6 +75,21 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             抽出した数値表現
         """
         return self.number_normalizer.process(text, do_fix_symbol=False)
+
+    def numbers2expressions(self, numbers: List[NNumber]) -> List[AbstimeExpression]:  # type: ignore[override]
+        """抽出した数値表現を絶対時間表現のオブジェクトに変換する.
+
+        Parameters
+        ----------
+        numbers : List[NNumber]
+            抽出した数値表現
+
+        Returns
+        -------
+        List[AbstimeExpression]
+            絶対時間表現のオブジェクト
+        """
+        return [AbstimeExpression(number) for number in numbers]
 
     def revise_abstime_expr_by_process_type(self, abstime_expr: AbstimeExpression,
                                             process_type: str) -> AbstimeExpression:
@@ -693,18 +711,3 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             True：無限、False：無限でない
         """
         return time_elem_lower_bound == INF and time_elem_upper_bound == -INF
-
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[AbstimeExpression]:  # type: ignore[override]
-        """抽出した数値表現を絶対時間表現のオブジェクトに変換する.
-
-        Parameters
-        ----------
-        numbers : List[NNumber]
-            抽出した数値表現
-
-        Returns
-        -------
-        List[AbstimeExpression]
-            絶対時間表現のオブジェクト
-        """
-        return [AbstimeExpression(number) for number in numbers]

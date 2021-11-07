@@ -8,8 +8,10 @@ import pynormalizenumexp
 from pynormalizenumexp.expression.base import NumberModifier
 from pynormalizenumexp.expression.counter import Counter
 from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
+from pynormalizenumexp.expression.limited_reltime import LimitedReltimeExpression
 
-from .custom_type import ChineseCharacterDict, CounterDict, LimitedAbstimeExpressionDict, NumberModifierDict
+from .custom_type import (ChineseCharacterDict, CounterDict, LimitedAbstimeExpressionDict, LimitedReltimeExpressionDict,
+                          NumberModifierDict)
 
 BASE_DICT_PKG: Final[str] = "resources.dict"
 
@@ -102,6 +104,35 @@ class DictLoader(object):
         """
         def make_expression(pattern: LimitedAbstimeExpressionDict) -> LimitedAbstimeExpression:
             expr = LimitedAbstimeExpression()
+            expr.pattern = pattern["pattern"]
+            expr.corresponding_time_position = pattern["corresponding_time_position"]
+            expr.process_type = pattern["process_type"]
+            expr.ordinary = pattern["ordinary"]
+            expr.option = pattern["option"]
+
+            return expr
+
+        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
+            patterns: List[LimitedAbstimeExpressionDict] = json.load(fp)["patterns"]
+            load_target = [make_expression(pattern) for pattern in patterns]
+
+        return load_target
+
+    def load_limited_reltime_expr_dict(self, dict_file: str) -> List[LimitedReltimeExpression]:
+        """相対時間のパターン辞書の読み込み.
+
+        Parameters
+        ----------
+        dict_file : str
+            辞書ファイル名
+
+        Returns
+        -------
+        List[LimitedReltimeExpression]
+            相対時間のパターン情報のリスト
+        """
+        def make_expression(pattern: LimitedReltimeExpressionDict) -> LimitedReltimeExpression:
+            expr = LimitedReltimeExpression()
             expr.pattern = pattern["pattern"]
             expr.corresponding_time_position = pattern["corresponding_time_position"]
             expr.process_type = pattern["process_type"]

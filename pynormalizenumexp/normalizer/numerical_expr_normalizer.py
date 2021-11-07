@@ -73,6 +73,21 @@ class NumericalExpressionNormalizer(BaseNormalizer):
         """
         return self.number_normalizer.process(text)
 
+    def numbers2expressions(self, numbers: List[NNumber]) -> List[NumericalExpression]:  # type: ignore[override]
+        """抽出した数値表現を変換する.
+
+        Parameters
+        ----------
+        numbers : List[NNumber]
+            抽出した数値表現
+
+        Returns
+        -------
+        List[NumericalExpression]
+            変換後のオブジェクト
+        """
+        return [NumericalExpression(number) for number in numbers]
+
     def revise_expr_by_matching_limited_expression(self, exprs: List[NumericalExpression],  # type: ignore[override]
                                                    expr_id: int,
                                                    matching_expr: Counter) -> List[NumericalExpression]:
@@ -296,21 +311,6 @@ class NumericalExpressionNormalizer(BaseNormalizer):
             exprs[i+1] = None  # type: ignore
 
         return [expr for expr in exprs if expr]
-
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[NumericalExpression]:  # type: ignore[override]
-        """抽出した数値表現を変換する.
-
-        Parameters
-        ----------
-        numbers : List[NNumber]
-            抽出した数値表現
-
-        Returns
-        -------
-        List[NumericalExpression]
-            変換後のオブジェクト
-        """
-        return [NumericalExpression(number) for number in numbers]
 
     def multiply_numexp_value(self, expr: NumericalExpression, x: float) -> NumericalExpression:
         """抽出した表現の数値に対する倍数を計算する.

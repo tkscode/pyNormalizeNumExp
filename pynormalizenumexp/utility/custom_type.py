@@ -33,6 +33,15 @@ LimitedAbstimeExpressionDict = TypedDict("LimitedAbstimeExpressionDict", {
     "option": str
 })
 
+# 相対時間の表現パターン辞書
+LimitedReltimeExpressionDict = TypedDict("LimitedReltimeExpressionDict", {
+    "pattern": str,
+    "corresponding_time_position": List[str],
+    "process_type": List[str],
+    "ordinary": bool,
+    "option": str
+})
+
 # 各種表現のprefix/suffixパターン辞書
 NumberModifierDict = TypedDict("NumberModifierDict", {
     "pattern": str,
