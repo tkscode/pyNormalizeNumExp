@@ -318,7 +318,8 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             修正後の絶対時間表現
         """
         for i in range(len(exprs) - 1):
-            if not self.have_kara_suffix(exprs[i].options) \
+            if exprs[i] is None \
+                    or not self.have_kara_suffix(exprs[i].options) \
                     or not self.have_kara_prefix(exprs[i+1].options) \
                     or exprs[i].position_end + 2 < exprs[i+1].position_start:
                 continue

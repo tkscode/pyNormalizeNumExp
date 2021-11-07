@@ -64,7 +64,44 @@ class NTime:
 
         str_params = ", ".join([f'{k}={v}' for k, v in params.items()])
 
-        return f'{self.__class__}({str_params})'
+        return f'NTime({str_params})'
+
+    @typing.no_type_check
+    def __repr__(self) -> str:  # noqa: D105
+        return self.__str__()
+
+    # def is_null(self, val: float) -> bool:  # noqa: D102
+    #     return val == INF or val == -INF
+
+    # def to_date_str(self, is_upper_bound: bool) -> str:  # noqa: D102
+    #     if self.is_null(self.year):
+    #         return "INF" if is_upper_bound else "-INF"
+
+    #     s = [
+    #         f'{self.year:04}',
+    #         "XX" if self.is_null(self.month) else f'{self.month:02}',
+    #         "XX" if self.is_null(self.day) else f'{self.day:02}'
+    #     ]
+
+    #     return "/".join(s)
+
+    # def to_time_str(self, is_upper_bound: bool) -> str:  # noqa: D102
+    #     if self.is_null(self.hour):
+    #         return "INF" if is_upper_bound else "-INF"
+
+    #     s = [
+    #         f'{self.hour:02}',
+    #         "XX" if self.is_null(self.minute) else f'{self.minute:02}',
+    #         "XX" if self.is_null(self.second) else f'{self.second:02}'
+    #     ]
+
+    #     return ":".join(s)
+
+    # def to_str(self, is_upper_bound: bool) -> str:  # noqa: D102
+    #     if self.is_null(self.year) and self.is_null(self.month) and self.is_null(self.day):
+    #         return self.to_time_str(is_upper_bound)
+
+    #     return self.to_date_str(is_upper_bound)
 
 
 class BaseExpression(object):
