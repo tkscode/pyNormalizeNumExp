@@ -2,7 +2,7 @@
 from copy import deepcopy
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
-from pynormalizenumexp.expression.base import LimitedExpression, NNumber, NormalizedExpression, NumberModifier
+from pynormalizenumexp.expression.base import BasePattern, NNumber, NormalizedExpression, NumberModifier
 from pynormalizenumexp.utility.dict_loader import DictLoader
 from pynormalizenumexp.utility.normalizer_utility import NormalizerUtility
 
@@ -21,8 +21,8 @@ class BaseNormalizer(object):
         self.dict_loader = dict_loader
         self.normalizer_utility = NormalizerUtility()
 
-        self.limited_expressions: Sequence[LimitedExpression] = []
-        self.prefix_counters: Sequence[LimitedExpression] = []
+        self.limited_expressions: Sequence[BasePattern] = []
+        self.prefix_counters: Sequence[BasePattern] = []
         self.prefix_number_modifier: List[NumberModifier] = []
         self.suffix_number_modifier: List[NumberModifier] = []
 
@@ -36,12 +36,12 @@ class BaseNormalizer(object):
         """辞書ファイルの読み込み."""
         raise NotImplementedError()
 
-    def build_patterns(self, expressions: Sequence[Union[LimitedExpression, NormalizedExpression]]) -> Dict[str, int]:
+    def build_patterns(self, expressions: Sequence[Union[BasePattern, NormalizedExpression]]) -> Dict[str, int]:
         """パターンオブジェクトからパターン文字列をパターンIDのマップを作成する.
 
         Parameters
         ----------
-        expressions : Sequence[Union[LimitedExpression, NormalizedExpression]]
+        expressions : Sequence[Union[BasePattern, NormalizedExpression]]
             パターンオブジェクト
 
         Returns
@@ -170,13 +170,13 @@ class BaseNormalizer(object):
         return matching_pattern_id
 
     def revise_expr_by_matching_limited_expression(self, exprs: Sequence[NormalizedExpression], expr_id: int,
-                                                   matching_expr: LimitedExpression) \
+                                                   matching_expr: BasePattern) \
             -> List[NormalizedExpression]:
         """マッチした数値表現の補正を行う."""
         raise NotImplementedError()
 
     def revise_expr_by_matching_prefix_counter(self, expr: NormalizedExpression,
-                                               matching_expr: LimitedExpression) -> NormalizedExpression:
+                                               matching_expr: BasePattern) -> NormalizedExpression:
         """マッチした単位表現から数値表現の補正を行う."""
         raise NotImplementedError()
 

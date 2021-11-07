@@ -15,7 +15,7 @@ ChineseCharacterDict = TypedDict("ChineseCharacterDict", {
 })
 
 # 時間系以外の表現パターン辞書
-CounterDict = TypedDict("CounterDict", {
+NumericalPatternDict = TypedDict("NumericalPatternDict", {
     "pattern": str,
     "counter": str,
     "SI_prefix": int,
@@ -25,7 +25,7 @@ CounterDict = TypedDict("CounterDict", {
 })
 
 # 絶対時間の表現パターン辞書
-LimitedAbstimeExpressionDict = TypedDict("LimitedAbstimeExpressionDict", {
+AbstimePatternDict = TypedDict("AbstimePatternDict", {
     "pattern": str,
     "corresponding_time_position": List[str],
     "process_type": List[str],
@@ -34,7 +34,7 @@ LimitedAbstimeExpressionDict = TypedDict("LimitedAbstimeExpressionDict", {
 })
 
 # 相対時間の表現パターン辞書
-LimitedReltimeExpressionDict = TypedDict("LimitedReltimeExpressionDict", {
+ReltimePatternDict = TypedDict("ReltimePatternDict", {
     "pattern": str,
     "corresponding_time_position": List[str],
     "process_type": List[str],
@@ -43,7 +43,7 @@ LimitedReltimeExpressionDict = TypedDict("LimitedReltimeExpressionDict", {
 })
 
 # 期間の表現パターン辞書
-LimitedDurationExpressionDict = TypedDict("LimitedDurationExpressionDict", {
+DurationPatternDict = TypedDict("DurationPatternDict", {
     "pattern": str,
     "corresponding_time_position": List[str],
     "process_type": List[str],

@@ -106,7 +106,7 @@ class BaseExpression(object):
         return f'{self.__class__}({str_params})'
 
 
-class LimitedExpression(BaseExpression):
+class BasePattern(BaseExpression):
     """パターン辞書用の各種表現の基底クラス."""
 
     def __init__(self) -> None:
@@ -122,7 +122,7 @@ class LimitedExpression(BaseExpression):
         self.len_of_after_final_place_holder: int = 0
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
-        return isinstance(o, LimitedExpression) and super().__eq__(o) \
+        return isinstance(o, BasePattern) and super().__eq__(o) \
             and self.ordinary == o.ordinary \
             and self.option == o.option \
             and self.total_number_of_place_holder == o.total_number_of_place_holder \

@@ -5,14 +5,14 @@ from importlib.resources import open_text
 from typing import Final, List
 
 import pynormalizenumexp
+from pynormalizenumexp.expression.abstime import AbstimePattern
 from pynormalizenumexp.expression.base import NumberModifier
-from pynormalizenumexp.expression.counter import Counter
-from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
-from pynormalizenumexp.expression.limited_duration import LimitedDurationExpression
-from pynormalizenumexp.expression.limited_reltime import LimitedReltimeExpression
+from pynormalizenumexp.expression.duration import DurationPattern
+from pynormalizenumexp.expression.numerical import NumericalPattern
+from pynormalizenumexp.expression.reltime import ReltimePattern
 
-from .custom_type import (ChineseCharacterDict, CounterDict, InappropriateStringDict, LimitedAbstimeExpressionDict,
-                          LimitedDurationExpressionDict, LimitedReltimeExpressionDict, NumberModifierDict)
+from .custom_type import (AbstimePatternDict, ChineseCharacterDict, DurationPatternDict, InappropriateStringDict,
+                          NumberModifierDict, NumericalPatternDict, ReltimePatternDict)
 
 BASE_DICT_PKG: Final[str] = "resources.dict"
 
@@ -60,7 +60,7 @@ class DictLoader(object):
 
         return load_target
 
-    def load_counter_expr_dict(self, dict_file: str) -> List[Counter]:
+    def load_counter_expr_dict(self, dict_file: str) -> List[NumericalPattern]:
         """時間系以外のパターン辞書の読み込み.
 
         Parameters
@@ -70,11 +70,11 @@ class DictLoader(object):
 
         Returns
         -------
-        List[Counter]
+        List[NumericalPattern]
             時間系以外のパターン情報のリスト
         """
-        def make_expression(pattern: CounterDict) -> Counter:
-            expr = Counter()
+        def make_expression(pattern: NumericalPatternDict) -> NumericalPattern:
+            expr = NumericalPattern()
             expr.pattern = pattern["pattern"]
             expr.counter = pattern["counter"]
             expr.si_prefix = pattern["SI_prefix"]
@@ -85,12 +85,12 @@ class DictLoader(object):
             return expr
 
         with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[CounterDict] = json.load(fp)["patterns"]
+            patterns: List[NumericalPatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_limited_abstime_expr_dict(self, dict_file: str) -> List[LimitedAbstimeExpression]:
+    def load_limited_abstime_expr_dict(self, dict_file: str) -> List[AbstimePattern]:
         """絶対時間のパターン辞書の読み込み.
 
         Parameters
@@ -100,11 +100,11 @@ class DictLoader(object):
 
         Returns
         -------
-        List[LimitedAbstimeExpression]
+        List[AbstimePattern]
             絶対時間のパターン情報のリスト
         """
-        def make_expression(pattern: LimitedAbstimeExpressionDict) -> LimitedAbstimeExpression:
-            expr = LimitedAbstimeExpression()
+        def make_expression(pattern: AbstimePatternDict) -> AbstimePattern:
+            expr = AbstimePattern()
             expr.pattern = pattern["pattern"]
             expr.corresponding_time_position = pattern["corresponding_time_position"]
             expr.process_type = pattern["process_type"]
@@ -114,12 +114,12 @@ class DictLoader(object):
             return expr
 
         with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[LimitedAbstimeExpressionDict] = json.load(fp)["patterns"]
+            patterns: List[AbstimePatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_limited_reltime_expr_dict(self, dict_file: str) -> List[LimitedReltimeExpression]:
+    def load_limited_reltime_expr_dict(self, dict_file: str) -> List[ReltimePattern]:
         """相対時間のパターン辞書の読み込み.
 
         Parameters
@@ -129,11 +129,11 @@ class DictLoader(object):
 
         Returns
         -------
-        List[LimitedReltimeExpression]
+        List[ReltimePattern]
             相対時間のパターン情報のリスト
         """
-        def make_expression(pattern: LimitedReltimeExpressionDict) -> LimitedReltimeExpression:
-            expr = LimitedReltimeExpression()
+        def make_expression(pattern: ReltimePatternDict) -> ReltimePattern:
+            expr = ReltimePattern()
             expr.pattern = pattern["pattern"]
             expr.corresponding_time_position = pattern["corresponding_time_position"]
             expr.process_type = pattern["process_type"]
@@ -143,12 +143,12 @@ class DictLoader(object):
             return expr
 
         with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[LimitedAbstimeExpressionDict] = json.load(fp)["patterns"]
+            patterns: List[AbstimePatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_limited_duration_expr_dict(self, dict_file: str) -> List[LimitedDurationExpression]:
+    def load_limited_duration_expr_dict(self, dict_file: str) -> List[DurationPattern]:
         """期間のパターン辞書の読み込み.
 
         Parameters
@@ -158,11 +158,11 @@ class DictLoader(object):
 
         Returns
         -------
-        List[LimitedDurationExpression]
+        List[DurationPattern]
             期間のパターン情報のリスト
         """
-        def make_expression(pattern: LimitedDurationExpressionDict) -> LimitedDurationExpression:
-            expr = LimitedDurationExpression()
+        def make_expression(pattern: DurationPatternDict) -> DurationPattern:
+            expr = DurationPattern()
             expr.pattern = pattern["pattern"]
             expr.corresponding_time_position = pattern["corresponding_time_position"]
             expr.process_type = pattern["process_type"]
@@ -172,7 +172,7 @@ class DictLoader(object):
             return expr
 
         with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[LimitedAbstimeExpressionDict] = json.load(fp)["patterns"]
+            patterns: List[AbstimePatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target

@@ -3,8 +3,7 @@ from copy import deepcopy
 from typing import List, Tuple
 
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
-from pynormalizenumexp.expression.duration import DurationExpression
-from pynormalizenumexp.expression.limited_duration import LimitedDurationExpression
+from pynormalizenumexp.expression.duration import DurationExpression, DurationPattern
 from pynormalizenumexp.utility.dict_loader import DictLoader
 
 from .base import BaseNormalizer
@@ -14,8 +13,8 @@ from .number_normalizer import NumberNormalizer
 class DurationExpressionNormalizer(BaseNormalizer):
     """期間の抽出・正規化を行うクラス."""
 
-    limited_expressions: List[LimitedDurationExpression]
-    prefix_counters: List[LimitedDurationExpression]
+    limited_expressions: List[DurationPattern]
+    prefix_counters: List[DurationPattern]
 
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
@@ -93,7 +92,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
     def revise_duration_expr_by_process_type(self, duration_expr: DurationExpression,
                                              process_type: str,
-                                             matching_duration_expr: LimitedDurationExpression) -> DurationExpression:
+                                             matching_duration_expr: DurationPattern) -> DurationExpression:
         """修飾語でないパターンに含まれるprocess_typeによる正規化表現の補正を行う.
 
         Parameters
@@ -102,7 +101,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
             補正対象の期間表現
         process_type : str
             処理タイプ
-        matching_duration_expr : LimitedDurationExpression
+        matching_duration_expr : DurationPattern
             マッチした期間表現パターン
 
         Returns
@@ -121,7 +120,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
         return new_duration_expr
 
     def revise_expr_by_matching_limited_expression(self, exprs: List[DurationExpression],  # type: ignore[override]
-                                                   expr_id: int, matching_expr: LimitedDurationExpression) \
+                                                   expr_id: int, matching_expr: DurationPattern) \
             -> List[DurationExpression]:
         """マッチした期間表現の補正を行う.
 
@@ -131,7 +130,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
             抽出された期間表現
         expr_id : int
             どの期間表現に着目するかのID（インデックス）
-        matching_expr : LimitedDurationExpression
+        matching_expr : DurationPattern
             マッチした表現辞書パターン
 
         Returns
@@ -159,14 +158,14 @@ class DurationExpressionNormalizer(BaseNormalizer):
         return [x[1] for x in filter(lambda x: min_id > x[0] or x[0] > max_id, enumerate(new_exprs))]
 
     def revise_expr_by_matching_prefix_counter(self, expr: DurationExpression,  # type: ignore[override]
-                                               matching_expr: LimitedDurationExpression) -> DurationExpression:
+                                               matching_expr: DurationPattern) -> DurationExpression:
         """マッチした単位表現から期間表現の補正を行う.
 
         Parameters
         ----------
         expr : DurationExpression
             抽出された期間表現
-        matching_expr : LimitedDurationExpression
+        matching_expr : DurationPattern
             マッチした表現辞書パターン
 
         Returns

@@ -2,9 +2,8 @@
 from copy import deepcopy
 from typing import List, Tuple
 
-from pynormalizenumexp.expression.abstime import AbstimeExpression
+from pynormalizenumexp.expression.abstime import AbstimeExpression, AbstimePattern
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
-from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
 from pynormalizenumexp.utility.dict_loader import DictLoader
 
 from .base import BaseNormalizer
@@ -14,8 +13,8 @@ from .number_normalizer import NumberNormalizer
 class AbstimeExpressionNormalizer(BaseNormalizer):
     """絶対時間の抽出・正規化を行うクラス."""
 
-    limited_expressions: List[LimitedAbstimeExpression]
-    prefix_counters: List[LimitedAbstimeExpression]
+    limited_expressions: List[AbstimePattern]
+    prefix_counters: List[AbstimePattern]
 
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
@@ -140,7 +139,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
     def revise_expr_by_matching_limited_expression(self, exprs: List[AbstimeExpression],  # type: ignore[override]
                                                    expr_id: int,
-                                                   matching_expr: LimitedAbstimeExpression) -> List[AbstimeExpression]:
+                                                   matching_expr: AbstimePattern) -> List[AbstimeExpression]:
         """マッチした絶対時間表現の補正を行う.
 
         Parameters
@@ -149,7 +148,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             抽出された絶対時間表現
         expr_id : int
             どの絶対時間表現に着目するかのID（インデックス）
-        matching_expr : LimitedAbstimeExpression
+        matching_expr : AbstimePattern
             マッチした表現辞書パターン
 
         Returns
@@ -178,14 +177,14 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return [x[1] for x in filter(lambda x: min_id > x[0] or x[0] > max_id, enumerate(new_exprs))]
 
     def revise_expr_by_matching_prefix_counter(self, expr: AbstimeExpression,  # type: ignore[override]
-                                               matching_expr: LimitedAbstimeExpression) -> AbstimeExpression:
+                                               matching_expr: AbstimePattern) -> AbstimeExpression:
         """マッチした単位表現から絶対時間表現の補正を行う.
 
         Parameters
         ----------
         expr : AbstimeExpression
             抽出された絶対時間表現
-        matching_expr : LimitedAbstimeExpression
+        matching_expr : AbstimePattern
             マッチした表現辞書パターン
 
         Returns

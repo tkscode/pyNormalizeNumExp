@@ -1,7 +1,7 @@
 import pytest
 
+from pynormalizenumexp.expression.abstime import AbstimePattern
 from pynormalizenumexp.expression.base import NumberModifier
-from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
 from pynormalizenumexp.utility.dict_loader import ChineseCharacter, DictLoader
 
 
@@ -21,7 +21,7 @@ class TestDictLoader:
     def test_load_limited_abstime_expr_dict(self, dict_loader: DictLoader):
         # 一例としてabstime_expression.jsonを読み込む
         res = dict_loader.load_limited_abstime_expr_dict("abstime_expression.json")
-        expect = LimitedAbstimeExpression()
+        expect = AbstimePattern()
         expect.pattern = "世紀"
         expect.corresponding_time_position = ["seiki"]
         expect.process_type = []

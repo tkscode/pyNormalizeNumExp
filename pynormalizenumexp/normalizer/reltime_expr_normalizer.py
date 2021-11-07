@@ -3,8 +3,7 @@ from copy import deepcopy
 from typing import List, Tuple
 
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
-from pynormalizenumexp.expression.limited_reltime import LimitedReltimeExpression
-from pynormalizenumexp.expression.reltime import ReltimeExpression
+from pynormalizenumexp.expression.reltime import ReltimeExpression, ReltimePattern
 from pynormalizenumexp.utility.dict_loader import DictLoader
 
 from .base import BaseNormalizer
@@ -14,8 +13,8 @@ from .number_normalizer import NumberNormalizer
 class ReltimeExpressionNormalizer(BaseNormalizer):
     """相対時間の抽出・正規化を行うクラス."""
 
-    limited_expressions: List[LimitedReltimeExpression]
-    prefix_counters: List[LimitedReltimeExpression]
+    limited_expressions: List[ReltimePattern]
+    prefix_counters: List[ReltimePattern]
 
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
@@ -93,7 +92,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
     def revise_reltime_expr_by_process_type(self, reltime_expr: ReltimeExpression,
                                             process_type: str,
-                                            matching_reltime_expr: LimitedReltimeExpression) -> ReltimeExpression:
+                                            matching_reltime_expr: ReltimePattern) -> ReltimeExpression:
         """修飾語でないパターンに含まれるprocess_typeによる正規化表現の補正を行う.
 
         Parameters
@@ -102,7 +101,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
             補正対象の相対時間表現
         process_type : str
             処理タイプ
-        matching_reltime_expr : LimitedReltimeExpression
+        matching_reltime_expr : ReltimePattern
             マッチした相対時間表現パターン
 
         Returns
@@ -136,7 +135,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
     def revise_expr_by_matching_limited_expression(self, exprs: List[ReltimeExpression],  # type: ignore[override]
                                                    expr_id: int,
-                                                   matching_expr: LimitedReltimeExpression) -> List[ReltimeExpression]:
+                                                   matching_expr: ReltimePattern) -> List[ReltimeExpression]:
         """マッチした相対時間表現の補正を行う.
 
         Parameters
@@ -145,7 +144,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
             抽出された相対時間表現
         expr_id : int
             どの相対時間表現に着目するかのID（インデックス）
-        matching_expr : LimitedReltimeExpression
+        matching_expr : ReltimePattern
             マッチした表現辞書パターン
 
         Returns
@@ -173,14 +172,14 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         return [x[1] for x in filter(lambda x: min_id > x[0] or x[0] > max_id, enumerate(new_exprs))]
 
     def revise_expr_by_matching_prefix_counter(self, expr: ReltimeExpression,  # type: ignore[override]
-                                               matching_expr: LimitedReltimeExpression) -> ReltimeExpression:
+                                               matching_expr: ReltimePattern) -> ReltimeExpression:
         """マッチした単位表現から相対時間表現の補正を行う.
 
         Parameters
         ----------
         expr : ReltimeExpression
             抽出された相対時間表現
-        matching_expr : LimitedReltimeExpression
+        matching_expr : ReltimePattern
             マッチした表現辞書パターン
 
         Returns

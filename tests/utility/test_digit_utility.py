@@ -1,7 +1,7 @@
 import pytest
 
 from pynormalizenumexp.expression.base import NotationType
-from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpression
+from pynormalizenumexp.expression.abstime import AbstimePattern
 from pynormalizenumexp.utility.dict_loader import DictLoader
 from pynormalizenumexp.utility.digit_utility import DigitUtility
 

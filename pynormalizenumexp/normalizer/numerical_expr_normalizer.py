@@ -3,8 +3,7 @@ from copy import deepcopy
 from typing import List
 
 from pynormalizenumexp.expression.base import INF, NumberModifier
-from pynormalizenumexp.expression.counter import Counter
-from pynormalizenumexp.expression.numerical import NumericalExpression
+from pynormalizenumexp.expression.numerical import NumericalExpression, NumericalPattern
 from pynormalizenumexp.utility.dict_loader import DictLoader
 
 from .base import BaseNormalizer, NNumber
@@ -90,7 +89,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
     def revise_expr_by_matching_limited_expression(self, exprs: List[NumericalExpression],  # type: ignore[override]
                                                    expr_id: int,
-                                                   matching_expr: Counter) -> List[NumericalExpression]:
+                                                   matching_expr: NumericalPattern) -> List[NumericalExpression]:
         """マッチした数値表現の補正を行う.
 
         Parameters
@@ -99,7 +98,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
             抽出された数値表現
         expr_id : int
             どの数値表現に着目するかのID（インデックス）
-        matching_expr : Counter
+        matching_expr : NumericalPattern
             マッチした表現辞書パターン
 
         Returns
@@ -122,7 +121,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         return new_exprs
 
-    def do_option_wari(self, num_exprs: List[NumericalExpression], expr_id: int, matching_expr: Counter) \
+    def do_option_wari(self, num_exprs: List[NumericalExpression], expr_id: int, matching_expr: NumericalPattern) \
             -> List[NumericalExpression]:
         """日本語の割合表記の補正を行う.
 
@@ -132,7 +131,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
             抽出された数値表現
         expr_id : int
             どの数値表現に着目するかのID（インデックス）
-        matching_expr : Counter
+        matching_expr : NumericalPattern
             マッチした表現辞書パターン
 
         Returns
@@ -166,14 +165,14 @@ class NumericalExpressionNormalizer(BaseNormalizer):
         return new_num_exprs
 
     def revise_expr_by_matching_prefix_counter(self, expr: NumericalExpression,  # type: ignore[override]
-                                               matching_expr: Counter) -> NumericalExpression:
+                                               matching_expr: NumericalPattern) -> NumericalExpression:
         """マッチした単位表現から数値表現の補正を行う.
 
         Parameters
         ----------
         expr : NumericalExpression
             抽出された数値表現
-        matching_expr : Counter
+        matching_expr : NumericalPattern
             マッチした表現辞書パターン
 
         Returns
