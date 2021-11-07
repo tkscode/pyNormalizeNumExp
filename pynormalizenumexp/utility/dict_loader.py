@@ -2,7 +2,7 @@
 import json
 from dataclasses import dataclass
 from importlib.resources import open_text
-from typing import Final, List
+from typing import List
 
 import pynormalizenumexp
 from pynormalizenumexp.expression.abstime import AbstimePattern
@@ -14,7 +14,7 @@ from pynormalizenumexp.expression.reltime import ReltimePattern
 from .custom_type import (AbstimePatternDict, ChineseCharacterDict, DurationPatternDict, InappropriateStringDict,
                           NumberModifierDict, NumericalPatternDict, ReltimePatternDict)
 
-BASE_DICT_PKG: Final[str] = "resources.dict"
+BASE_DICT_PKG = "resources.dict"
 
 
 @dataclass

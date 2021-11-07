@@ -1,17 +1,17 @@
 """数値表現の抽出処理の定義モジュール."""
 import re
-from typing import Final, List, Pattern
+from typing import List
 
 from pynormalizenumexp.expression.base import NNumber, NotationType
 from pynormalizenumexp.utility.digit_utility import DigitUtility
 
-INVALID_NOTATION_TYPE_REG: Final[Pattern[str]] = re.compile(f"{NotationType.HANKAKU} {NotationType.ZENKAKU}"
-                                                            + f"|{NotationType.ZENKAKU} {NotationType.HANKAKU}"
-                                                            + f"|{NotationType.HANKAKU} {NotationType.KANSUJI_09}"
-                                                            + f"|{NotationType.KANSUJI_09} {NotationType.HANKAKU}"
-                                                            + f"|{NotationType.ZENKAKU} {NotationType.KANSUJI_09}"
-                                                            + f"|{NotationType.KANSUJI_09} {NotationType.ZENKAKU}",
-                                                            flags=re.DOTALL)
+INVALID_NOTATION_TYPE_REG = re.compile(f"{NotationType.HANKAKU} {NotationType.ZENKAKU}"
+                                       + f"|{NotationType.ZENKAKU} {NotationType.HANKAKU}"
+                                       + f"|{NotationType.HANKAKU} {NotationType.KANSUJI_09}"
+                                       + f"|{NotationType.KANSUJI_09} {NotationType.HANKAKU}"
+                                       + f"|{NotationType.ZENKAKU} {NotationType.KANSUJI_09}"
+                                       + f"|{NotationType.KANSUJI_09} {NotationType.ZENKAKU}",
+                                       flags=re.DOTALL)
 
 
 class NumberExtractor(object):

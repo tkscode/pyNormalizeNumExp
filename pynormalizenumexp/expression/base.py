@@ -1,11 +1,11 @@
 """各種表現パターンクラスの定義モジュール."""
 import typing
 from enum import Enum
-from typing import Any, Dict, Final, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 # 定数定義
-INF: Final[float] = float("inf")
-PLACE_HOLDER: Final[str] = "ǂ"
+INF = float("inf")
+PLACE_HOLDER = "ǂ"
 
 
 class NotationType(Enum):

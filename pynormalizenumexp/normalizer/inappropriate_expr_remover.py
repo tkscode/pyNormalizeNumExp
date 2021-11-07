@@ -2,7 +2,7 @@
 import re
 import typing
 from copy import deepcopy
-from typing import Dict, Final, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 from unicodedata import normalize
 
 from pynormalizenumexp.expression.abstime import AbstimeExpression
@@ -12,8 +12,8 @@ from pynormalizenumexp.expression.numerical import NumericalExpression
 from pynormalizenumexp.expression.reltime import ReltimeExpression
 from pynormalizenumexp.utility.dict_loader import DictLoader
 
-INAPPROPRIATE_PREFIX_LIST: Final[List[str]] = ["ver", "ｖｅｒ"]
-URL_REG: Final[re.Pattern[str]] = re.compile(r"https?://[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+", flags=re.DOTALL)
+INAPPROPRIATE_PREFIX_LIST = ["ver", "ｖｅｒ"]
+URL_REG = re.compile(r"https?://[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+", flags=re.DOTALL)
 
 
 class InappropriateExpressionRemover(object):
