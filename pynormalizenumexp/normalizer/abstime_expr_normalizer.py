@@ -361,7 +361,6 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             val_lb.year -= 5
             val_ub.year += 5
         elif target_time_position == "m":
-            # TODO 1月頃という表現だと0月～2月にならないか？
             val_lb.month -= 1
             val_ub.month += 1
         elif target_time_position == "d":
@@ -605,11 +604,6 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         -------
         AbstimeExpression
             セット後の絶対時間表現
-
-        Raises
-        ------
-        ValueError
-            時間表記が不正な値の場合
         """
         new_abstime_expr = deepcopy(abstime_expr)
         if time_position == "y":

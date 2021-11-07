@@ -651,11 +651,6 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         -------
         ReltimeExpression
             セット後の相対時間表現
-
-        Raises
-        ------
-        ValueError
-            時間表記が不正な値の場合
         """
         new_reltime_expr = deepcopy(reltime_expr)
         if time_position == "y":

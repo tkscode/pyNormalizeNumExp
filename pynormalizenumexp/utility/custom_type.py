@@ -42,6 +42,15 @@ LimitedReltimeExpressionDict = TypedDict("LimitedReltimeExpressionDict", {
     "option": str
 })
 
+# 期間の表現パターン辞書
+LimitedDurationExpressionDict = TypedDict("LimitedDurationExpressionDict", {
+    "pattern": str,
+    "corresponding_time_position": List[str],
+    "process_type": List[str],
+    "ordinary": bool,
+    "option": str
+})
+
 # 各種表現のprefix/suffixパターン辞書
 NumberModifierDict = TypedDict("NumberModifierDict", {
     "pattern": str,
