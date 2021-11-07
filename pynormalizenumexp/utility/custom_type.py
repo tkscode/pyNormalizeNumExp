@@ -51,6 +51,11 @@ LimitedDurationExpressionDict = TypedDict("LimitedDurationExpressionDict", {
     "option": str
 })
 
+# 除外表現パターン辞書
+InappropriateStringDict = TypedDict("InappropriateStringDict", {
+    "str": str
+})
+
 # 各種表現のprefix/suffixパターン辞書
 NumberModifierDict = TypedDict("NumberModifierDict", {
     "pattern": str,

@@ -11,7 +11,7 @@ from pynormalizenumexp.expression.limited_abstime import LimitedAbstimeExpressio
 from pynormalizenumexp.expression.limited_duration import LimitedDurationExpression
 from pynormalizenumexp.expression.limited_reltime import LimitedReltimeExpression
 
-from .custom_type import (ChineseCharacterDict, CounterDict, LimitedAbstimeExpressionDict,
+from .custom_type import (ChineseCharacterDict, CounterDict, InappropriateStringDict, LimitedAbstimeExpressionDict,
                           LimitedDurationExpressionDict, LimitedReltimeExpressionDict, NumberModifierDict)
 
 BASE_DICT_PKG: Final[str] = "resources.dict"
@@ -193,5 +193,24 @@ class DictLoader(object):
         with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
             patterns: List[NumberModifierDict] = json.load(fp)["patterns"]
             load_target = [NumberModifier(pattern["pattern"], pattern["process_type"]) for pattern in patterns]
+
+        return load_target
+
+    def load_inappropriate_strings_dict(self, dict_file: str) -> List[str]:
+        """不適切な数値表現パターン辞書の読み込み.
+
+        Parameters
+        ----------
+        dict_file : str
+            辞書ファイル名
+
+        Returns
+        -------
+        List[str]
+            不適切な数値表現の文字列
+        """
+        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
+            strings: List[InappropriateStringDict] = json.load(fp)["strings"]
+            load_target = [string["str"] for string in strings]
 
         return load_target

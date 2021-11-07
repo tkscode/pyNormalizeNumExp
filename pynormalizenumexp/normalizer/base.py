@@ -345,12 +345,12 @@ class BaseNormalizer(object):
         """特定条件下の数値表現を削除する."""
         raise NotImplementedError()
 
-    def fix_kara_expression(self, exprs: Sequence[NormalizedExpression]) -> List[NormalizedExpression]:
+    def fix_kara_expression(self, exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
         """「から」表現のみがついてしまうのを修正する.
 
         Parameters
         ----------
-        exprs : Sequence[NormalizedExpression]
+        exprs : List[NormalizedExpression]
             抽出された数値表現
 
         Returns
