@@ -22,7 +22,7 @@ class NumericalExpression(NormalizedExpression):
         """コンストラクタ."""
         ...
 
-    def __init__(self, args: Any) -> None:  # type: ignore
+    def __init__(self, *args: Any) -> None:  # type: ignore
         """コンストラクタ."""
         try:
             original_expr, position_start, position_end, value_lower_bound, value_upper_bound = args

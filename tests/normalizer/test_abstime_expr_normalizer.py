@@ -12,10 +12,6 @@ def abstime_expr_normalizer():
 
 
 class TestAbstimeExpressionNormalizer:
-    def test_normalize_number(self, abstime_expr_normalizer: AbstimeExpressionNormalizer):
-        # NumberNormalizerの単体テストでカバーできているので特に何もしない
-        pass
-
     def test_process(self, abstime_expr_normalizer: AbstimeExpressionNormalizer):
         res = abstime_expr_normalizer.process("午後3時")
         number = NNumber("午後3時", 0, 4)

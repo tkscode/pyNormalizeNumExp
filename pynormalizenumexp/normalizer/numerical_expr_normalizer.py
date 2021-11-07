@@ -26,8 +26,8 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         self.number_normalizer = NumberNormalizer(dict_loader)
 
-        self.load_dictionaries("num_counter.json", "number_prefix_counter.json",
-                               "number_prefix.json", "number_suffix.json")
+        self.load_dictionaries("num_counter.json", "num_prefix_counter.json",
+                               "num_prefix.json", "num_suffix.json")
 
     def load_dictionaries(self, limited_expr_dict_file: str, prefix_counter_dict_file: str,
                           prefix_number_modifier_dict_file: str, suffix_number_modifier_dict_file: str) -> None:
@@ -256,7 +256,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
             削除後の数値表現表現
         """
         for i in range(len(exprs)):
-            if len(exprs[i].counter):
+            if len(exprs[i].counter) == 0:
                 exprs[i] = None  # type: ignore
 
         return [expr for expr in exprs if expr]
