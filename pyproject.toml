@@ -12,7 +12,8 @@ packages = [
     { include = "pynormalizenumexp" },
 ]
 include = [
-  "pynormalizenumexp/py.typed"
+  "pynormalizenumexp/py.typed",
+  "pynormalizenumexp/resources/**/*.json"
 ]
 
 [tool.poetry.dependencies]
