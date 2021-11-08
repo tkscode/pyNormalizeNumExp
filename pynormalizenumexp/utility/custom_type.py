@@ -1,5 +1,5 @@
 """TypedDictを使った独自の型定義モジュール."""
-from typing import List
+from typing import Dict, List, Optional, Union
 
 try:
     from typing import TypedDict
@@ -60,4 +60,19 @@ InappropriateStringDict = TypedDict("InappropriateStringDict", {
 NumberModifierDict = TypedDict("NumberModifierDict", {
     "pattern": str,
     "process_type": str
+})
+
+# 返却用の表現辞書
+ReturnExpressionDict = TypedDict("ReturnExpressionDict", {
+    "type": str,
+    "original_expr": str,
+    "position_start": int,
+    "position_end": int,
+    "counter": str,
+    "value_lower_bound": Union[int, float, Dict[str, Union[int, float]]],
+    "value_upper_bound": Union[int, float, Dict[str, Union[int, float]]],
+    "value_lower_bound_abs": Optional[Dict[str, Union[int, float]]],
+    "value_upper_bound_abs": Optional[Dict[str, Union[int, float]]],
+    "value_lower_bound_rel": Optional[Dict[str, Union[int, float]]],
+    "value_upper_bound_rel": Optional[Dict[str, Union[int, float]]]
 })

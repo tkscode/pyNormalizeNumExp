@@ -1,5 +1,5 @@
 """各種数値表現の抽出・正規化を行う処理の定義モジュール."""
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import List, Optional, Union, cast
 
 from .expression.abstime import AbstimeExpression
@@ -12,7 +12,20 @@ from .normalizer.duration_expr_normalizer import DurationExpressionNormalizer
 from .normalizer.inappropriate_expr_remover import InappropriateExpressionRemover
 from .normalizer.numerical_expr_normalizer import NumericalExpressionNormalizer
 from .normalizer.reltime_expr_normalizer import ReltimeExpressionNormalizer
+from .utility.custom_type import ReturnExpressionDict
 from .utility.dict_loader import DictLoader
+
+
+@dataclass
+class Time:
+    """時間保持用クラス."""
+
+    year: Union[int, float]
+    month: Union[int, float]
+    day: Union[int, float]
+    hour: Union[int, float]
+    minute: Union[int, float]
+    second: Union[int, float]
 
 
 @dataclass
@@ -31,17 +44,17 @@ class Expression:
         終了位置
     counter : str
         単位
-    value_lower_bound : Union[int, float, NTime]
+    value_lower_bound : Union[int, float, Time]
         数量・絶対時間・期間の下限
-    value_upper_bound : Union[int, float, NTime]
+    value_upper_bound : Union[int, float, Time]
         数量・絶対時間・期間の上限
-    value_lower_bound_abs : NTime
+    value_lower_bound_abs : Time
         相対時間表現における絶対時間の下限
-    value_upper_bound_abs : NTime
+    value_upper_bound_abs : Time
         相対時間表現における絶対時間の上限
-    value_lower_bound_rel : NTime
+    value_lower_bound_rel : Time
         相対時間表現における相対時間の下限
-    value_upper_bound_rel : NTime
+    value_upper_bound_rel : Time
         相対時間表現における相対時間の上限
     options : List[str]
         オプション
@@ -52,12 +65,12 @@ class Expression:
     position_start: int = -1
     position_end: int = -1
     counter: str = ""
-    value_lower_bound: Optional[Union[int, float, NTime]] = None
-    value_upper_bound: Optional[Union[int, float, NTime]] = None
-    value_lower_bound_abs: Optional[NTime] = None
-    value_upper_bound_abs: Optional[NTime] = None
-    value_lower_bound_rel: Optional[NTime] = None
-    value_upper_bound_rel: Optional[NTime] = None
+    value_lower_bound: Optional[Union[int, float, Time]] = None
+    value_upper_bound: Optional[Union[int, float, Time]] = None
+    value_lower_bound_abs: Optional[Time] = None
+    value_upper_bound_abs: Optional[Time] = None
+    value_lower_bound_rel: Optional[Time] = None
+    value_upper_bound_rel: Optional[Time] = None
     options: List[str] = field(default_factory=list)
 
 
@@ -80,13 +93,15 @@ class NormalizeNumexp(object):
         self.duration_expr_normalizer = DurationExpressionNormalizer(dict_loader)
         self.inappropriate_expr_remover = InappropriateExpressionRemover(dict_loader)
 
-    def normalize(self, text: str) -> List[Expression]:
+    def normalize(self, text: str, as_dict: bool = False) -> Union[List[Expression], List[ReturnExpressionDict]]:
         """各種数値表現の抽出・正規化を行う.
 
         Parameters
         ----------
         text : str
             抽出対象のテキスト
+        as_dict : bool, optional
+            dict型で結果を返すかどうか（デフォルト：False＝dict型にしない）
 
         Returns
         -------
@@ -105,7 +120,13 @@ class NormalizeNumexp(object):
                 text, numerical_exprs, abstime_exprs, reltime_exprs, duration_exprs)
 
         # 統一的な数値表現オブジェクトに変換する
-        return self.merge_expressions(numerical_exprs, abstime_exprs, reltime_exprs, duration_exprs)
+        exprs = self.merge_expressions(numerical_exprs, abstime_exprs, reltime_exprs, duration_exprs)
+
+        if as_dict:
+            # asdictでdataclassオブジェクトをdict型に変換する
+            return [cast(ReturnExpressionDict, asdict(expr)) for expr in exprs]
+
+        return exprs
 
     def merge_expressions(self, numerical_exprs: List[NumericalExpression], abstime_exprs: List[AbstimeExpression],
                           reltime_exprs: List[ReltimeExpression], duration_exprs: List[DurationExpression]) \
@@ -128,6 +149,13 @@ class NormalizeNumexp(object):
         List[Expression]
             変換後の数値表現
         """
+        def conv_time_obj(bound: Optional[NTime]) -> Optional[Time]:
+            if bound is None:
+                return None
+
+            return Time(year=bound.year, month=bound.month, day=bound.day,
+                        hour=bound.hour, minute=bound.minute, second=bound.second)
+
         total_exprs: List[Expression] = []
 
         for numerical_expr in numerical_exprs:
@@ -150,8 +178,8 @@ class NormalizeNumexp(object):
             expr.position_start = abstime_expr.position_start
             expr.position_end = abstime_expr.position_end
             expr.counter = "none"
-            expr.value_lower_bound = abstime_expr.value_lower_bound
-            expr.value_upper_bound = abstime_expr.value_upper_bound
+            expr.value_lower_bound = conv_time_obj(abstime_expr.value_lower_bound)
+            expr.value_upper_bound = conv_time_obj(abstime_expr.value_upper_bound)
             expr.options = self.show_options(abstime_expr)
 
             total_exprs.append(expr)
@@ -163,11 +191,11 @@ class NormalizeNumexp(object):
             expr.position_start = reltime_expr.position_start
             expr.position_end = reltime_expr.position_end
             expr.counter = "none"
-            expr.value_lower_bound_abs = reltime_expr.value_lower_bound_abs
-            expr.value_upper_bound_abs = reltime_expr.value_upper_bound_abs
-            expr.value_lower_bound_rel = reltime_expr.value_lower_bound_rel
-            expr.value_upper_bound_rel = reltime_expr.value_upper_bound_rel
-            expr.value_upper_bound = reltime_expr.value_upper_bound
+            expr.value_lower_bound_abs = conv_time_obj(reltime_expr.value_lower_bound_abs)
+            expr.value_upper_bound_abs = conv_time_obj(reltime_expr.value_upper_bound_abs)
+            expr.value_lower_bound_rel = conv_time_obj(reltime_expr.value_lower_bound_rel)
+            expr.value_upper_bound_rel = conv_time_obj(reltime_expr.value_upper_bound_rel)
+            expr.value_upper_bound = conv_time_obj(reltime_expr.value_upper_bound)
             expr.options = self.show_options(reltime_expr)
 
             total_exprs.append(expr)
@@ -179,8 +207,8 @@ class NormalizeNumexp(object):
             expr.position_start = duration_expr.position_start
             expr.position_end = duration_expr.position_end
             expr.counter = "none"
-            expr.value_lower_bound = duration_expr.value_lower_bound
-            expr.value_upper_bound = duration_expr.value_upper_bound
+            expr.value_lower_bound = conv_time_obj(duration_expr.value_lower_bound)
+            expr.value_upper_bound = conv_time_obj(duration_expr.value_upper_bound)
             expr.options = self.show_options(duration_expr)
 
             total_exprs.append(expr)
