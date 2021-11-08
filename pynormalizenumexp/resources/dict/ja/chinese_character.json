@@ -1,0 +1,134 @@
+{
+  "characters": [
+    {
+      "character": "〇",
+      "value": 0,
+      "notation_type": "09"
+    },
+    {
+      "character": "一",
+      "value": 1,
+      "notation_type": "09"
+    },
+    {
+      "character": "二",
+      "value": 2,
+      "notation_type": "09"
+    },
+    {
+      "character": "三",
+      "value": 3,
+      "notation_type": "09"
+    },
+    {
+      "character": "四",
+      "value": 4,
+      "notation_type": "09"
+    },
+    {
+      "character": "五",
+      "value": 5,
+      "notation_type": "09"
+    },
+    {
+      "character": "六",
+      "value": 6,
+      "notation_type": "09"
+    },
+    {
+      "character": "七",
+      "value": 7,
+      "notation_type": "09"
+    },
+    {
+      "character": "八",
+      "value": 8,
+      "notation_type": "09"
+    },
+    {
+      "character": "九",
+      "value": 9,
+      "notation_type": "09"
+    },
+    {
+      "character": "零",
+      "value": 0,
+      "notation_type": "09"
+    },
+    {
+      "character": "十",
+      "value": 1,
+      "notation_type": "sen"
+    },
+    {
+      "character": "百",
+      "value": 2,
+      "notation_type": "sen"
+    },
+    {
+      "character": "千",
+      "value": 3,
+      "notation_type": "sen"
+    },
+    {
+      "character": "万",
+      "value": 4,
+      "notation_type": "man"
+    },
+    {
+      "character": "億",
+      "value": 8,
+      "notation_type": "man"
+    },
+    {
+      "character": "兆",
+      "value": 12,
+      "notation_type": "man"
+    },
+    {
+      "character": "京",
+      "value": 16,
+      "notation_type": "man"
+    },
+    {
+      "character": "壱",
+      "value": 1,
+      "notation_type": "09"
+    },
+    {
+      "character": "弐",
+      "value": 2,
+      "notation_type": "09"
+    },
+    {
+      "character": "参",
+      "value": 3,
+      "notation_type": "09"
+    },
+    {
+      "character": "伍",
+      "value": 5,
+      "notation_type": "09"
+    },
+    {
+      "character": "拾",
+      "value": 1,
+      "notation_type": "sen"
+    },
+    {
+      "character": "佰",
+      "value": 2,
+      "notation_type": "sen"
+    },
+    {
+      "character": "阡",
+      "value": 3,
+      "notation_type": "sen"
+    },
+    {
+      "character": "萬",
+      "value": 4,
+      "notation_type": "man"
+    }
+  ]
+}
