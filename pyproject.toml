@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pynormalizenumexp"
-version = "0.1.0"
+version = "0.1.1"
 description = "NormalizeNumExp for Python"
 authors = ["tkscode"]
 license = "BSD 3-Clause"
@@ -17,20 +17,20 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<=3.9"
+python = ">=3.7,<4.0"
 typing-extensions = {version = "^3"}
 
 [tool.poetry.dev-dependencies]
-autopep8 = {version = "1.5.7"}
+autopep8 = {version = "1.6.0"}
 bandit = {version = "1.7.0"}
-flake8 = {version = "3.9.2"}
+flake8 = {version = "4.0.1"}
 flake8-bandit = {version = "2.1.2"}
 flake8-docstrings = {version = "1.6.0"}
-flake8-isort = {version = "4.0.0"}
-isort = {version = "5.9.3"}
+flake8-isort = {version = "4.1.1"}
+isort = {version = "5.10.0"}
 mypy = {version = "0.910"}
-pytest = {version = "6.2.4"}
-pytest-cov = {version = "2.12.1"}
+pytest = {version = "6.2.5"}
+pytest-cov = {version = "3.0.0"}
 pyproject-flake8 = {version = "0.0.1a2"}
 
 [build-system]
