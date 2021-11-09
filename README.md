@@ -1,16 +1,16 @@
 [![PyPI version](https://badge.fury.io/py/pynormalizenumexp.svg)](https://badge.fury.io/py/pynormalizenumexp)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pynormalizenumexp.svg)](https://pypi.org/project/pynormalizenumexp/)
-![pytest](https://github.com/tkscode/pyNormalizeNumExp/workflows/pytest/badge.svg)
+[![pytest](https://github.com/tkscode/pyNormalizeNumExp/actions/workflows/pytest.yml/badge.svg?branch=main)](https://github.com/tkscode/pyNormalizeNumExp/actions/workflows/pytest.yml)
 [![codecov](https://codecov.io/gh/tkscode/pyNormalizeNumExp/branch/main/graph/badge.svg?token=3Z0YIZV5U1)](https://codecov.io/gh/tkscode/pyNormalizeNumExp)
 
 
 # pyNormalizeNumexp
 
 数量表現や時間表現の抽出・正規化を行う[NormalizeNumexp](https://www.cl.ecei.tohoku.ac.jp/Open_Resources-normalizeNumexp.html)のPython実装です。  
-本家でもSWIGによるPythonバインディングが提供されていますが、NormalizeNumexp本体のインストールにトラブルに遭うことが多いため、全ての実装をPythonで移植しました。
+本家でもSWIGによるPythonバインディングが提供されていますが、NormalizeNumexp本体のインストールでトラブルに遭うことが多いため、全実装をPythonに移植しました。
 
 
-## Prerequired
+## Prerequisites
 
 Python >=3.7, <=3.9
 
