@@ -7,21 +7,25 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       # リポジトリをチェックアウトする
       # See: https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       # Python のランタイムをセットアップする
       # See: https://github.com/actions/setup-python
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v1
         with:
           python-version: '3.11'
+
       # Poetryのインストール
       - name: Install Poetry
         run: |
           pip install poetry
+
       # パッケージのビルドとPyPIへのアップロード
       - name: Build and publish
         env:

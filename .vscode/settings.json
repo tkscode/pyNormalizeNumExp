@@ -14,6 +14,7 @@
     "**/.svn": true,
     "**/.hg": true,
     "**/.venv*": true,
+    "**/.tox": true,
     "**/.coverage": true,
     "**/.cov": true,
     "**/.mypy_cache": true,
@@ -30,6 +31,7 @@
     "**/node_modules/*/**": true,
     "**/.hg/store/**": true,
     "**/.venv*/**": true,
+    "**/.tox": true,
     "**/.mypy_cache": true,
     "**/.pytest_cache": true,
     "**/.cov/**": true
