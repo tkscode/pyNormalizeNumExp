@@ -1,9 +1,10 @@
+# flake8: noqa
 import pytest
 
 from pynormalizenumexp.expression.base import NNumber, NotationType
+from pynormalizenumexp.normalizer.number_extractor import NumberExtractor
 from pynormalizenumexp.utility.dict_loader import DictLoader
 from pynormalizenumexp.utility.digit_utility import DigitUtility
-from pynormalizenumexp.normalizer.number_extractor import NumberExtractor
 
 
 @pytest.fixture(scope="class")

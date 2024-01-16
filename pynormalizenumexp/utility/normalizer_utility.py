@@ -1,6 +1,6 @@
 """正規化・補正処理における共通処理を定義モジュール."""
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Optional, Tuple
 
 from pynormalizenumexp.expression.base import INF, PLACE_HOLDER, NNumber, NTime
 
@@ -8,14 +8,14 @@ from pynormalizenumexp.expression.base import INF, PLACE_HOLDER, NNumber, NTime
 class NormalizerUtility(object):
     """正規化・補正処理における共通処理のクラス."""
 
-    def replace_numbers_in_text(self, text: str, numbers: List[NNumber]) -> str:
+    def replace_numbers_in_text(self, text: str, numbers: list[NNumber]) -> str:
         """テキスト中の数値表現をPlaceholderに置換する.
 
         Parameters
         ----------
         text : str
             置換対象のテキスト
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             数値表現
 
         Returns
@@ -50,14 +50,14 @@ class NormalizerUtility(object):
         """
         return re.sub(f"[{PLACE_HOLDER}]{{2,}}", PLACE_HOLDER, text, flags=re.DOTALL)
 
-    def search_pattern(self, text: str, patterns: Dict[str, int], search_type: str) -> int:
+    def search_pattern(self, text: str, patterns: dict[str, int], search_type: str) -> int:
         """patternsの中から、テキストのprefix/suffixになっているものを探索する.
 
         Parameters
         ----------
         text : str
             探索対象のテキスト
-        patterns : Dict[str, int]
+        patterns : dict[str, int]
             パターン情報（Key：パターン文字列、Value：パターンID）
         search_type : str
             先頭から見るprefixか末尾から見るsuffixか
@@ -89,7 +89,7 @@ class NormalizerUtility(object):
 
         return -1
 
-    def search_prefix_number_modifier(self, text: str, expr_position_start: int, patterns: Dict[str, int]) -> int:
+    def search_prefix_number_modifier(self, text: str, expr_position_start: int, patterns: dict[str, int]) -> int:
         """数値表現の前に来る修飾表現を検索する.
 
         Parameters
@@ -98,7 +98,7 @@ class NormalizerUtility(object):
             検索対象のテキスト
         expr_position_start : int
             数値表現の開始位置
-        patterns : Dict[str, int]
+        patterns : dict[str, int]
             修飾表現パターン
 
         Returns
@@ -116,7 +116,7 @@ class NormalizerUtility(object):
         # -> 「$」が修飾表現に該当する
         return self.search_pattern(before_text, patterns, "suffix")
 
-    def search_suffix_number_modifier(self, text: str, expr_position_end: int, patterns: Dict[str, int]) -> int:
+    def search_suffix_number_modifier(self, text: str, expr_position_end: int, patterns: dict[str, int]) -> int:
         """数値表現の後に来る修飾表現を検索する.
 
         Parameters
@@ -125,7 +125,7 @@ class NormalizerUtility(object):
             検索対象のテキスト
         expr_position_end : int
             数値表現の終了位置
-        patterns : Dict[str, int]
+        patterns : dict[str, int]
             修飾表現パターン
 
         Returns

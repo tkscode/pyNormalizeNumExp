@@ -15,7 +15,7 @@ jobs:
     # 複数のPythonのバージョンでテストするために `strategy.matrix` を設定する
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       # リポジトリをチェックアウトする
       # See: https://github.com/actions/checkout
@@ -31,17 +31,16 @@ jobs:
       # Poetryのインストール
       - name: Install Poetry
         run: |
-          python -m pip install --upgrade pip
           pip install poetry
       # Poetryを使って必要なPythonパッケージをインストールする
       - name: Install Dependencies
-        run: poetry install --no-interaction
+        run: poetry install --with test --no-interaction
       # pytestを実行する
       - name: Run Tests
         run: poetry run pytest
       - name: Upload coverage to Codecov
         # 上記のステップが全て完了した場合にCodecovへアップロード
-        if: ${{ matrix.python-version==3.10 }}
+        if: ${{ matrix.python-version==3.12 }}
         uses: codecov/codecov-action@v2
         with:
           file: ./coverage.xml

@@ -1,6 +1,5 @@
 """絶対時間の抽出・正規化処理を定義するモジュール."""
 from copy import deepcopy
-from typing import List, Tuple
 
 from pynormalizenumexp.expression.abstime import AbstimeExpression, AbstimePattern
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
@@ -13,8 +12,8 @@ from .number_normalizer import NumberNormalizer
 class AbstimeExpressionNormalizer(BaseNormalizer):
     """絶対時間の抽出・正規化を行うクラス."""
 
-    limited_expressions: List[AbstimePattern]
-    prefix_counters: List[AbstimePattern]
+    limited_expressions: list[AbstimePattern]
+    prefix_counters: list[AbstimePattern]
 
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
@@ -60,7 +59,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
             expr.set_total_number_of_place_holder()
             expr.set_len_of_after_final_place_holder()
 
-    def normalize_number(self, text: str) -> List[NNumber]:
+    def normalize_number(self, text: str) -> list[NNumber]:
         """テキストから数値表現を抽出する.
 
         Parameters
@@ -70,22 +69,22 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             抽出した数値表現
         """
         return self.number_normalizer.process(text, do_fix_symbol=False)
 
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[AbstimeExpression]:  # type: ignore[override]
+    def numbers2expressions(self, numbers: list[NNumber]) -> list[AbstimeExpression]:  # type: ignore[override]
         """抽出した数値表現を絶対時間表現のオブジェクトに変換する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出した数値表現
 
         Returns
         -------
-        List[AbstimeExpression]
+        list[AbstimeExpression]
             絶対時間表現のオブジェクト
         """
         return [AbstimeExpression(number) for number in numbers]
@@ -137,14 +136,14 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return new_abstime_expr
 
-    def revise_expr_by_matching_limited_expression(self, exprs: List[AbstimeExpression],  # type: ignore[override]
+    def revise_expr_by_matching_limited_expression(self, exprs: list[AbstimeExpression],  # type: ignore[override]
                                                    expr_id: int,
-                                                   matching_expr: AbstimePattern) -> List[AbstimeExpression]:
+                                                   matching_expr: AbstimePattern) -> list[AbstimeExpression]:
         """マッチした絶対時間表現の補正を行う.
 
         Parameters
         ----------
-        exprs : List[AbstimeExpression]
+        exprs : list[AbstimeExpression]
             抽出された絶対時間表現
         expr_id : int
             どの絶対時間表現に着目するかのID（インデックス）
@@ -153,7 +152,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[AbstimeExpression]
+        list[AbstimeExpression]
             補正済みの絶対時間表現
         """
         new_exprs = deepcopy(exprs)
@@ -281,17 +280,17 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return new_expr
 
     def delete_not_expression(self,  # type: ignore[override]
-                              exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+                              exprs: list[AbstimeExpression]) -> list[AbstimeExpression]:
         """時間オブジェクトがNullの絶対時間表現を削除する.
 
         Parameters
         ----------
-        exprs : List[AbstimeExpression]
+        exprs : list[AbstimeExpression]
             抽出された絶対時間表現
 
         Returns
         -------
-        List[AbstimeExpression]
+        list[AbstimeExpression]
             削除後の絶対時間表現
         """
         for i in range(len(exprs)):
@@ -302,19 +301,19 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return [expr for expr in exprs if expr]
 
     def fix_by_range_expression(self,  # type: ignore[override]
-                                text: str, exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+                                text: str, exprs: list[AbstimeExpression]) -> list[AbstimeExpression]:
         """絶対時間の範囲表現の修正を行う.
 
         Parameters
         ----------
         text : str
             元のテキスト
-        exprs : List[AbstimeExpression]
+        exprs : list[AbstimeExpression]
             抽出された絶対時間表現
 
         Returns
         -------
-        List[AbstimeExpression]
+        list[AbstimeExpression]
             修正後の絶対時間表現
         """
         for i in range(len(exprs) - 1):
@@ -341,7 +340,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return [expr for expr in exprs if expr]
 
-    def do_time_about(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_about(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """about表現の場合の日付計算を行う.
 
         Parameters
@@ -351,7 +350,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -378,7 +377,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_zenhan(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_zenhan(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """前半表現の場合の日付計算を行う.
 
         Parameters
@@ -388,7 +387,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -415,7 +414,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_kouhan(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_kouhan(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """後半表現の場合の日付計算を行う.
 
         Parameters
@@ -425,7 +424,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -452,7 +451,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_nakaba(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_nakaba(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """半ば表現の場合の日付計算を行う.
 
         Parameters
@@ -462,7 +461,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -491,7 +490,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_joujun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_joujun(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """上旬表現の場合の日付計算を行う.
 
         Parameters
@@ -501,7 +500,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -513,7 +512,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_tyujun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_tyujun(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """中旬表現の場合の日付計算を行う.
 
         Parameters
@@ -523,7 +522,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -535,7 +534,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_gejun(self, abstime_expr: AbstimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_gejun(self, abstime_expr: AbstimeExpression) -> tuple[NTime, NTime]:
         """下旬表現の場合の日付計算を行う.
 
         Parameters
@@ -545,7 +544,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = abstime_expr.value_lower_bound
@@ -558,7 +557,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return val_lb, val_ub
 
     def abstime_info2null_abstime(self, abstime1: AbstimeExpression, abstime2: AbstimeExpression) \
-            -> Tuple[AbstimeExpression, AbstimeExpression]:
+            -> tuple[AbstimeExpression, AbstimeExpression]:
         """連続する時間表現から時間表現として認識されていない部分を時間表現として修正する.
 
         Parameters
@@ -570,7 +569,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[AbstimeExpression, AbstimeExpression]
+        tuple[AbstimeExpression, AbstimeExpression]
             修正後のi番目とi+1番目の絶対時間表現
         """
         if abstime1.value_lower_bound == NTime(INF):
@@ -631,7 +630,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
         return new_abstime_expr
 
     def supplement_abstime_info(self, abstime1: AbstimeExpression,  # noqa: C901
-                                abstime2: AbstimeExpression) -> Tuple[AbstimeExpression, AbstimeExpression]:
+                                abstime2: AbstimeExpression) -> tuple[AbstimeExpression, AbstimeExpression]:
         """連続する時間表現で欠落している情報を補完する.
 
         Parameters
@@ -643,7 +642,7 @@ class AbstimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[AbstimeExpression, AbstimeExpression]
+        tuple[AbstimeExpression, AbstimeExpression]
             補完後のi番目とi+1番目の絶対時間表現
         """
         new_abstime1 = deepcopy(abstime1)

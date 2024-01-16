@@ -1,6 +1,5 @@
 """期間の抽出・正規化処理を定義するモジュール."""
 from copy import deepcopy
-from typing import List, Tuple
 
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
 from pynormalizenumexp.expression.duration import DurationExpression, DurationPattern
@@ -13,8 +12,8 @@ from .number_normalizer import NumberNormalizer
 class DurationExpressionNormalizer(BaseNormalizer):
     """期間の抽出・正規化を行うクラス."""
 
-    limited_expressions: List[DurationPattern]
-    prefix_counters: List[DurationPattern]
+    limited_expressions: list[DurationPattern]
+    prefix_counters: list[DurationPattern]
 
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
@@ -60,7 +59,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
             expr.set_total_number_of_place_holder()
             expr.set_len_of_after_final_place_holder()
 
-    def normalize_number(self, text: str) -> List[NNumber]:
+    def normalize_number(self, text: str) -> list[NNumber]:
         """テキストから数値表現を抽出する.
 
         Parameters
@@ -70,22 +69,22 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             抽出した数値表現
         """
         return self.number_normalizer.process(text)
 
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[DurationExpression]:  # type: ignore[override]
+    def numbers2expressions(self, numbers: list[NNumber]) -> list[DurationExpression]:  # type: ignore[override]
         """抽出した数値表現を期間表現のオブジェクトに変換する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出した数値表現
 
         Returns
         -------
-        List[DurationExpression]
+        list[DurationExpression]
             期間表現のオブジェクト
         """
         return [DurationExpression(number) for number in numbers]
@@ -119,14 +118,14 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         return new_duration_expr
 
-    def revise_expr_by_matching_limited_expression(self, exprs: List[DurationExpression],  # type: ignore[override]
+    def revise_expr_by_matching_limited_expression(self, exprs: list[DurationExpression],  # type: ignore[override]
                                                    expr_id: int, matching_expr: DurationPattern) \
-            -> List[DurationExpression]:
+            -> list[DurationExpression]:
         """マッチした期間表現の補正を行う.
 
         Parameters
         ----------
-        exprs : List[DurationExpression]
+        exprs : list[DurationExpression]
             抽出された期間表現
         expr_id : int
             どの期間表現に着目するかのID（インデックス）
@@ -135,7 +134,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[DurationExpression]
+        list[DurationExpression]
             補正済みの期間表現
         """
         new_exprs = deepcopy(exprs)
@@ -237,17 +236,17 @@ class DurationExpressionNormalizer(BaseNormalizer):
         return new_expr
 
     def delete_not_expression(self,  # type: ignore[override]
-                              exprs: List[DurationExpression]) -> List[DurationExpression]:
+                              exprs: list[DurationExpression]) -> list[DurationExpression]:
         """時間オブジェクトがNullの期間表現を削除する.
 
         Parameters
         ----------
-        exprs : List[DurationExpression]
+        exprs : list[DurationExpression]
             抽出された期間表現
 
         Returns
         -------
-        List[DurationExpression]
+        list[DurationExpression]
             削除後の期間表現
         """
         for i in range(len(exprs)):
@@ -258,19 +257,19 @@ class DurationExpressionNormalizer(BaseNormalizer):
         return [expr for expr in exprs if expr]
 
     def fix_by_range_expression(self,  # type: ignore[override]
-                                text: str, exprs: List[DurationExpression]) -> List[DurationExpression]:
+                                text: str, exprs: list[DurationExpression]) -> list[DurationExpression]:
         """期間の範囲表現の修正を行う.
 
         Parameters
         ----------
         text : str
             元のテキスト
-        exprs : List[DurationExpression]
+        exprs : list[DurationExpression]
             抽出された期間表現
 
         Returns
         -------
-        List[DurationExpression]
+        list[DurationExpression]
             修正後の期間表現
         """
         for i in range(len(exprs) - 1):
@@ -292,7 +291,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
         return [expr for expr in exprs if expr]
 
     def do_option_han(self, duration_expr: DurationExpression,  # noqa: C901
-                      corresponding_time_position: str) -> Tuple[NTime, NTime]:
+                      corresponding_time_position: str) -> tuple[NTime, NTime]:
         """「半」表現の場合の日付計算を行う.
 
         Parameters
@@ -304,7 +303,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = duration_expr.value_lower_bound
@@ -333,7 +332,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_about(self, duration_expr: DurationExpression) -> Tuple[NTime, NTime]:
+    def do_time_about(self, duration_expr: DurationExpression) -> tuple[NTime, NTime]:
         """about表現の場合の日付計算を行う.
 
         Parameters
@@ -343,7 +342,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = duration_expr.value_lower_bound
@@ -370,7 +369,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_kyou(self, duration_expr: DurationExpression) -> Tuple[NTime, NTime]:
+    def do_time_kyou(self, duration_expr: DurationExpression) -> tuple[NTime, NTime]:
         """「強」表現の場合の日付計算を行う.
 
         Parameters
@@ -380,7 +379,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = duration_expr.value_lower_bound
@@ -403,7 +402,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         return val_lb, val_ub
 
-    def do_time_jaku(self, duration_expr: DurationExpression) -> Tuple[NTime, NTime]:
+    def do_time_jaku(self, duration_expr: DurationExpression) -> tuple[NTime, NTime]:
         """「弱」表現の場合の日付計算を行う.
 
         Parameters
@@ -413,7 +412,7 @@ class DurationExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb = duration_expr.value_lower_bound

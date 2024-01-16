@@ -1,8 +1,8 @@
 """辞書ファイルの読み込み定義モジュール."""
 import json
+import os
 from dataclasses import dataclass
-from importlib.resources import open_text
-from typing import List
+from importlib.resources import files
 
 import pynormalizenumexp
 from pynormalizenumexp.expression.abstime import AbstimePattern
@@ -11,8 +11,8 @@ from pynormalizenumexp.expression.duration import DurationPattern
 from pynormalizenumexp.expression.numerical import NumericalPattern
 from pynormalizenumexp.expression.reltime import ReltimePattern
 
-from .custom_type import (AbstimePatternDict, ChineseCharacterDict, DurationPatternDict, InappropriateStringDict,
-                          NumberModifierDict, NumericalPatternDict, ReltimePatternDict)
+from .custom_type import (AbstimePatternDict, ChineseCharacterDict, DurationPatternDict, InappropriateStringDict, NumberModifierDict,
+                          NumericalPatternDict, ReltimePatternDict)
 
 BASE_DICT_PKG = "resources.dict"
 
@@ -39,8 +39,9 @@ class DictLoader(object):
         """
         # TODO ja, en, zh以外はエラーになるようにする
         self.language = language
+        self.resouce_dirpath = files(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}')
 
-    def load_chinese_character_dict(self, dict_file: str) -> List[ChineseCharacter]:
+    def load_chinese_character_dict(self, dict_file: str) -> list[ChineseCharacter]:
         """漢数字辞書の読み込み.
 
         Parameters
@@ -50,17 +51,17 @@ class DictLoader(object):
 
         Returns
         -------
-        List[ChineseCharacter]
+        list[ChineseCharacter]
             漢数字情報のリスト
         """
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            characters: List[ChineseCharacterDict] = json.load(fp)["characters"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            characters: list[ChineseCharacterDict] = json.load(fp)["characters"]
             load_target = [ChineseCharacter(character=char["character"], value=char["value"],
                                             notation_type=char["notation_type"]) for char in characters]
 
         return load_target
 
-    def load_counter_expr_dict(self, dict_file: str) -> List[NumericalPattern]:
+    def load_counter_expr_dict(self, dict_file: str) -> list[NumericalPattern]:
         """時間系以外のパターン辞書の読み込み.
 
         Parameters
@@ -70,7 +71,7 @@ class DictLoader(object):
 
         Returns
         -------
-        List[NumericalPattern]
+        list[NumericalPattern]
             時間系以外のパターン情報のリスト
         """
         def make_expression(pattern: NumericalPatternDict) -> NumericalPattern:
@@ -84,13 +85,13 @@ class DictLoader(object):
 
             return expr
 
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[NumericalPatternDict] = json.load(fp)["patterns"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            patterns: list[NumericalPatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_limited_abstime_expr_dict(self, dict_file: str) -> List[AbstimePattern]:
+    def load_limited_abstime_expr_dict(self, dict_file: str) -> list[AbstimePattern]:
         """絶対時間のパターン辞書の読み込み.
 
         Parameters
@@ -100,7 +101,7 @@ class DictLoader(object):
 
         Returns
         -------
-        List[AbstimePattern]
+        list[AbstimePattern]
             絶対時間のパターン情報のリスト
         """
         def make_expression(pattern: AbstimePatternDict) -> AbstimePattern:
@@ -113,13 +114,13 @@ class DictLoader(object):
 
             return expr
 
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[AbstimePatternDict] = json.load(fp)["patterns"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            patterns: list[AbstimePatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_limited_reltime_expr_dict(self, dict_file: str) -> List[ReltimePattern]:
+    def load_limited_reltime_expr_dict(self, dict_file: str) -> list[ReltimePattern]:
         """相対時間のパターン辞書の読み込み.
 
         Parameters
@@ -129,7 +130,7 @@ class DictLoader(object):
 
         Returns
         -------
-        List[ReltimePattern]
+        list[ReltimePattern]
             相対時間のパターン情報のリスト
         """
         def make_expression(pattern: ReltimePatternDict) -> ReltimePattern:
@@ -142,13 +143,13 @@ class DictLoader(object):
 
             return expr
 
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[AbstimePatternDict] = json.load(fp)["patterns"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            patterns: list[AbstimePatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_limited_duration_expr_dict(self, dict_file: str) -> List[DurationPattern]:
+    def load_limited_duration_expr_dict(self, dict_file: str) -> list[DurationPattern]:
         """期間のパターン辞書の読み込み.
 
         Parameters
@@ -158,7 +159,7 @@ class DictLoader(object):
 
         Returns
         -------
-        List[DurationPattern]
+        list[DurationPattern]
             期間のパターン情報のリスト
         """
         def make_expression(pattern: DurationPatternDict) -> DurationPattern:
@@ -171,13 +172,13 @@ class DictLoader(object):
 
             return expr
 
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[AbstimePatternDict] = json.load(fp)["patterns"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            patterns: list[AbstimePatternDict] = json.load(fp)["patterns"]
             load_target = [make_expression(pattern) for pattern in patterns]
 
         return load_target
 
-    def load_number_modifier_dict(self, dict_file: str) -> List[NumberModifier]:
+    def load_number_modifier_dict(self, dict_file: str) -> list[NumberModifier]:
         """各種表現のprefix/suffixパターン辞書の読み込み.
 
         Parameters
@@ -187,16 +188,16 @@ class DictLoader(object):
 
         Returns
         -------
-        List[NumberModifier]
+        list[NumberModifier]
             各種表現のprefix/suffixパターン情報のリスト
         """
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            patterns: List[NumberModifierDict] = json.load(fp)["patterns"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            patterns: list[NumberModifierDict] = json.load(fp)["patterns"]
             load_target = [NumberModifier(pattern["pattern"], pattern["process_type"]) for pattern in patterns]
 
         return load_target
 
-    def load_inappropriate_strings_dict(self, dict_file: str) -> List[str]:
+    def load_inappropriate_strings_dict(self, dict_file: str) -> list[str]:
         """不適切な数値表現パターン辞書の読み込み.
 
         Parameters
@@ -206,11 +207,11 @@ class DictLoader(object):
 
         Returns
         -------
-        List[str]
+        list[str]
             不適切な数値表現の文字列
         """
-        with open_text(f'{pynormalizenumexp.__package__}.{BASE_DICT_PKG}.{self.language}', dict_file) as fp:
-            strings: List[InappropriateStringDict] = json.load(fp)["strings"]
+        with open(os.path.join(self.resouce_dirpath, dict_file)) as fp:
+            strings: list[InappropriateStringDict] = json.load(fp)["strings"]
             load_target = [string["str"] for string in strings]
 
         return load_target

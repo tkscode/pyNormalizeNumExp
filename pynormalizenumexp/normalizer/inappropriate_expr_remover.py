@@ -2,7 +2,7 @@
 import re
 import typing
 from copy import deepcopy
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 from unicodedata import normalize
 
 from pynormalizenumexp.expression.abstime import AbstimeExpression
@@ -34,34 +34,34 @@ class InappropriateExpressionRemover(object):
     def init_inappropriate_strings(self) -> None:
         """不適切な文字列情報の読み込み."""
         inappropriate_strings = self.dict_loader.load_inappropriate_strings_dict("inappropriate_strings.json")
-        self.inappropriate_strings: Dict[str, bool] = dict()
+        self.inappropriate_strings: dict[str, bool] = dict()
         for string in inappropriate_strings:
             self.inappropriate_strings[string] = True
 
     @typing.no_type_check
     def remove_inappropriate_extraction(self, text: str,
-                                        numerical_exprs: List[NumericalExpression],
-                                        abstime_exprs: List[AbstimeExpression],
-                                        reltime_exprs: List[ReltimeExpression],
-                                        duration_exprs: List[DurationExpression]) \
-            -> Tuple[List[NumericalExpression], List[AbstimeExpression], List[ReltimeExpression],
-                     List[DurationExpression]]:
+                                        numerical_exprs: list[NumericalExpression],
+                                        abstime_exprs: list[AbstimeExpression],
+                                        reltime_exprs: list[ReltimeExpression],
+                                        duration_exprs: list[DurationExpression]) \
+            -> tuple[list[NumericalExpression], list[AbstimeExpression], list[ReltimeExpression],
+                     list[DurationExpression]]:
         """不適切な数値表現を削除する.
 
         Parameters
         ----------
-        numerical_exprs : List[NumericalExpression]
+        numerical_exprs : list[NumericalExpression]
             時間系以外の数値表現
-        abstime_exprs : List[AbstimeExpression]
+        abstime_exprs : list[AbstimeExpression]
             絶対時間表現
-        reltime_exprs : List[ReltimeExpression]
+        reltime_exprs : list[ReltimeExpression]
             相対時間表現
-        duration_exprs : List[DurationExpression]
+        duration_exprs : list[DurationExpression]
             期間表現
 
         Returns
         -------
-        Tuple[List[NumericalExpression], List[AbstimeExpression], List[ReltimeExpression], List[DurationExpression]]
+        tuple[list[NumericalExpression], list[AbstimeExpression], list[ReltimeExpression], list[DurationExpression]]
             不適切なものを取り除いた各数値表現
         """
         abstime_exprs = self.delete_inappropriate_abstime_exprs(abstime_exprs)
@@ -82,17 +82,17 @@ class InappropriateExpressionRemover(object):
 
         return numerical_exprs, abstime_exprs, reltime_exprs, duration_exprs
 
-    def delete_inappropriate_abstime_exprs(self, abstime_exprs: List[AbstimeExpression]) -> List[AbstimeExpression]:
+    def delete_inappropriate_abstime_exprs(self, abstime_exprs: list[AbstimeExpression]) -> list[AbstimeExpression]:
         """不適切な絶対時間表現を削除する.
 
         Parameters
         ----------
-        abstime_exprs : List[AbstimeExpression]
+        abstime_exprs : list[AbstimeExpression]
             抽出した絶対時間表現
 
         Returns
         -------
-        List[AbstimeExpression]
+        list[AbstimeExpression]
             削除後の絶対時間表現
         """
         new_abstime_exprs = deepcopy(abstime_exprs)
@@ -101,20 +101,20 @@ class InappropriateExpressionRemover(object):
 
         return [expr for expr in new_abstime_exprs if expr]
 
-    def delete_duplicate_extraction(self, target_exprs: List[NormalizedExpression],
-                                    other_exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+    def delete_duplicate_extraction(self, target_exprs: list[NormalizedExpression],
+                                    other_exprs: list[NormalizedExpression]) -> list[NormalizedExpression]:
         """重複する数値表現を削除する.
 
         Parameters
         ----------
-        target_exprs : List[NormalizedExpression]
+        target_exprs : list[NormalizedExpression]
             削除対象を含む数値表現
-        other_exprs : List[NormalizedExpression]
+        other_exprs : list[NormalizedExpression]
             比較する数値表現
 
         Returns
         -------
-        List[NormalizedExpression]
+        list[NormalizedExpression]
             削除後の数値表現
         """
         for i, target_expr in enumerate(target_exprs):
@@ -125,19 +125,19 @@ class InappropriateExpressionRemover(object):
         return [expr for expr in target_exprs if expr]
 
     def delete_inappropriate_extraction_using_dict(self, text: str,  # noqa: C901
-                                                   exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+                                                   exprs: list[NormalizedExpression]) -> list[NormalizedExpression]:
         """辞書情報などを使った数値表現の削除.
 
         Parameters
         ----------
         text : str
             元テキスト
-        exprs : List[NormalizedExpression]
+        exprs : list[NormalizedExpression]
             削除対象を含む数値表現
 
         Returns
         -------
-        List[NormalizedExpression]
+        list[NormalizedExpression]
             削除後の数値表現
         """
         new_exprs = deepcopy(exprs)
@@ -247,14 +247,14 @@ class InappropriateExpressionRemover(object):
             or is_out_of_range(t.hour, 0, 30) or is_out_of_range(t.minute, 0, 59) or is_out_of_range(t.second, 0, 59)
 
     def is_converted_by_other_type_expressions(self, any_type_expression1: NormalizedExpression,
-                                               any_type_expressions2: List[NormalizedExpression]) -> bool:
+                                               any_type_expressions2: list[NormalizedExpression]) -> bool:
         """2つの数値表現が重複するかどうか判定する.
 
         Parameters
         ----------
         any_type_expression1 : NormalizedExpression
             判定対象の数値表現
-        any_type_expressions2 : List[NormalizedExpression]
+        any_type_expressions2 : list[NormalizedExpression]
             もう片方の数値表現
 
         Returns

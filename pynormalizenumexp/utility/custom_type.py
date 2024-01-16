@@ -1,11 +1,5 @@
 """TypedDictを使った独自の型定義モジュール."""
-from typing import Dict, List, Optional, Union
-
-try:
-    from typing import TypedDict
-except ImportError:
-    from typing_extensions import TypedDict
-
+from typing import Optional, TypedDict, Union
 
 # 漢数字辞書
 ChineseCharacterDict = TypedDict("ChineseCharacterDict", {
@@ -27,8 +21,8 @@ NumericalPatternDict = TypedDict("NumericalPatternDict", {
 # 絶対時間の表現パターン辞書
 AbstimePatternDict = TypedDict("AbstimePatternDict", {
     "pattern": str,
-    "corresponding_time_position": List[str],
-    "process_type": List[str],
+    "corresponding_time_position": list[str],
+    "process_type": list[str],
     "ordinary": bool,
     "option": str
 })
@@ -36,8 +30,8 @@ AbstimePatternDict = TypedDict("AbstimePatternDict", {
 # 相対時間の表現パターン辞書
 ReltimePatternDict = TypedDict("ReltimePatternDict", {
     "pattern": str,
-    "corresponding_time_position": List[str],
-    "process_type": List[str],
+    "corresponding_time_position": list[str],
+    "process_type": list[str],
     "ordinary": bool,
     "option": str
 })
@@ -45,8 +39,8 @@ ReltimePatternDict = TypedDict("ReltimePatternDict", {
 # 期間の表現パターン辞書
 DurationPatternDict = TypedDict("DurationPatternDict", {
     "pattern": str,
-    "corresponding_time_position": List[str],
-    "process_type": List[str],
+    "corresponding_time_position": list[str],
+    "process_type": list[str],
     "ordinary": bool,
     "option": str
 })
@@ -69,10 +63,10 @@ ReturnExpressionDict = TypedDict("ReturnExpressionDict", {
     "position_start": int,
     "position_end": int,
     "counter": str,
-    "value_lower_bound": Union[int, float, Dict[str, Union[int, float]]],
-    "value_upper_bound": Union[int, float, Dict[str, Union[int, float]]],
-    "value_lower_bound_abs": Optional[Dict[str, Union[int, float]]],
-    "value_upper_bound_abs": Optional[Dict[str, Union[int, float]]],
-    "value_lower_bound_rel": Optional[Dict[str, Union[int, float]]],
-    "value_upper_bound_rel": Optional[Dict[str, Union[int, float]]]
+    "value_lower_bound": Union[int, float, dict[str, Union[int, float]]],
+    "value_upper_bound": Union[int, float, dict[str, Union[int, float]]],
+    "value_lower_bound_abs": Optional[dict[str, Union[int, float]]],
+    "value_upper_bound_abs": Optional[dict[str, Union[int, float]]],
+    "value_lower_bound_rel": Optional[dict[str, Union[int, float]]],
+    "value_upper_bound_rel": Optional[dict[str, Union[int, float]]]
 })

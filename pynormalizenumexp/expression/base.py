@@ -1,7 +1,7 @@
 """各種表現パターンクラスの定義モジュール."""
 import typing
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 # 定数定義
 INF = float("inf")
@@ -50,7 +50,7 @@ class NTime:
             and o.hour == self.hour and o.minute == self.minute and o.second == self.second
 
     @typing.no_type_check
-    def __str__(self, only_params: bool = False) -> Union[str, Dict[str, int]]:  # noqa: D105
+    def __str__(self, only_params: bool = False) -> Union[str, dict[str, int]]:  # noqa: D105
         params = {
             "year": self.year,
             "month": self.month,
@@ -126,7 +126,7 @@ class BaseExpression(object):
             and self.value_upper_bound == o.value_upper_bound
 
     @typing.no_type_check
-    def __str__(self, only_params: bool = False) -> Union[str, Dict[str, Any]]:  # noqa: D105
+    def __str__(self, only_params: bool = False) -> Union[str, dict[str, Any]]:  # noqa: D105
         params = {
             "original_expr": self.original_expr,
             "position_start": self.position_start,
@@ -222,7 +222,7 @@ class NNumber(BaseExpression):
 
         self.value_lower_bound = INF
         self.value_upper_bound = -INF
-        self.notation_type: List[NotationType] = []
+        self.notation_type: list[NotationType] = []
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
         return isinstance(o, NNumber) and super().__eq__(o) \
@@ -267,7 +267,7 @@ class NormalizedExpression(BaseExpression):
         self.is_over: bool = False
         self.is_less: bool = False
         self.ordinary: bool = False
-        self.options: List[str] = []
+        self.options: list[str] = []
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
         return isinstance(o, NormalizedExpression) and super().__eq__(o) \

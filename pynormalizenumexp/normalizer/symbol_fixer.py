@@ -1,6 +1,6 @@
 """数値表現に関わる表記（プラスマイナスや小数点、カンマ、範囲文字など）を考慮した数値表現の変換処理定義モジュール."""
 from copy import deepcopy
-from typing import List, Optional
+from typing import Optional
 
 from pynormalizenumexp.expression.base import INF, NNumber
 from pynormalizenumexp.utility.digit_utility import DigitUtility
@@ -19,19 +19,19 @@ class SymbolFixer(object):
         """
         self.digit_utility = digit_utility
 
-    def fix_numbers_by_symbol(self, text: str, numbers: List[NNumber]) -> List[NNumber]:
+    def fix_numbers_by_symbol(self, text: str, numbers: list[NNumber]) -> list[NNumber]:
         """数値表現のPrefixや数値表現間の表現を考慮した表現の修正を行う.
 
         Parameters
         ----------
         text : str
             元のテキスト
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出された数値表現
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             修正後の数値表現
         """
         new_numbers = deepcopy(numbers)
@@ -49,7 +49,7 @@ class SymbolFixer(object):
                 # 修正がされていれば1つ後の数値表現は不要なので削除する
                 if fixed_number.original_expr != new_numbers[i].original_expr:
                     new_numbers[i] = fixed_number
-                    del(new_numbers[i+1])
+                    del new_numbers[i+1]
 
             i += 1
 
