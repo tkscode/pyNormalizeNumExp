@@ -32,6 +32,7 @@ mypy = {version = "1.8.0"}
 [tool.poetry.group.test.dependencies]
 pytest = {version = "7.4.4"}
 pytest-cov = {version = "4.1.0"}
+tox = {version = "4.12.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
