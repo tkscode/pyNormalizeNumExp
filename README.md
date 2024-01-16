@@ -12,7 +12,7 @@
 
 ## Prerequisites
 
-Python >=3.7, <=3.9
+Python >=3.8.1, <=3.12
 
 
 ## Installation

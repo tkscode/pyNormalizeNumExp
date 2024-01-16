@@ -35,20 +35,9 @@
     "**/.cov/**": true
   },
   "python.analysis.autoImportCompletions": false,
-  "python.formatting.provider": "autopep8",
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": false,
-  "python.linting.flake8Enabled": true,
-  "python.linting.lintOnSave": true,
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": [],
   "python.testing.autoTestDiscoverOnSaveEnabled": false,
   "python.defaultInterpreterPath": ".venv/bin/python",
-  "python.linting.ignorePatterns": [
-    "**/site-packages/**/*.py",
-    ".vscode/*.py",
-    "**/__init__.py",
-    "tests/**/*.py"
-  ]
 }

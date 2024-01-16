@@ -1,3 +1,4 @@
+# flake8: noqa
 import pytest
 
 from pynormalizenumexp.expression.abstime import AbstimeExpression

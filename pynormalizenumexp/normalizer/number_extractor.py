@@ -1,6 +1,5 @@
 """数値表現の抽出処理の定義モジュール."""
 import re
-from typing import List
 
 from pynormalizenumexp.expression.base import NNumber, NotationType
 from pynormalizenumexp.utility.digit_utility import DigitUtility
@@ -27,12 +26,12 @@ class NumberExtractor(object):
         """
         self.digit_utility = digit_utility
 
-    def is_invalid_notation_type(self, notation_type: List[NotationType]) -> bool:
+    def is_invalid_notation_type(self, notation_type: list[NotationType]) -> bool:
         """不適切な数字の表記を数字種から判定する.
 
         Parameters
         ----------
-        notation_type : List[NotationType]
+        notation_type : list[NotationType]
             判定対象の数字種
 
         Returns
@@ -51,7 +50,7 @@ class NumberExtractor(object):
 
         return False
 
-    def split_number_by_kansuji_kurai(self, number: NNumber) -> List[NNumber]:
+    def split_number_by_kansuji_kurai(self, number: NNumber) -> list[NNumber]:
         """漢数字の位表記で不適切な箇所ごとに分割する.
 
         Parameters
@@ -61,7 +60,7 @@ class NumberExtractor(object):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             分割後の数値表現
 
         Notes
@@ -73,7 +72,7 @@ class NumberExtractor(object):
             # 漢数字でない表記の場合は分割できないのでそのままにする
             return [number]
 
-        numbers: List[NNumber] = []
+        numbers: list[NNumber] = []
         prev_num_str = ""
         position_start = 0
         for i in range(len(number.notation_type)):
@@ -123,7 +122,7 @@ class NumberExtractor(object):
 
         return numbers
 
-    def split_number_by_notation_type(self, number: NNumber) -> List[NNumber]:
+    def split_number_by_notation_type(self, number: NNumber) -> list[NNumber]:
         """数字種が不適切な並びから数値表現を分割する.
 
         Parameters
@@ -133,14 +132,14 @@ class NumberExtractor(object):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             分割後の数値表現
 
         Notes
         -----
             例：「2000三十」を「2000」と「三十」に分割する
         """
-        numbers: List[NNumber] = []
+        numbers: list[NNumber] = []
         position_start = 0
         for i in range(1, len(number.notation_type)-1):
             # 数字の表記が入り乱れているか
@@ -169,7 +168,7 @@ class NumberExtractor(object):
 
         return numbers
 
-    def extract_number(self, text: str) -> List[NNumber]:
+    def extract_number(self, text: str) -> list[NNumber]:
         """テキストからの数値表現の抽出.
 
         Parameters
@@ -179,14 +178,14 @@ class NumberExtractor(object):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             抽出された数値表現情報
         """
         # テキストの各文字がどの数字種にあたるか調べる
         text_notation_type = [self.digit_utility.chars2full_notation_type(char) for char in text]
 
         # 数字である部分の文字列を抜き出す
-        numbers: List[NNumber] = []
+        numbers: list[NNumber] = []
         num_str = ""
         i = 0
         while i < len(text):
@@ -208,12 +207,12 @@ class NumberExtractor(object):
             numbers.append(number)
 
         # 不適切な数字種の並びから数値表現を分割する
-        numbers_notation_type_splitted: List[NNumber] = []
+        numbers_notation_type_splitted: list[NNumber] = []
         for number in numbers:
             numbers_notation_type_splitted += self.split_number_by_notation_type(number)
 
         # 不適切な漢数字の位表記から数値表現を分割する
-        numbers_kansuji_kurai_splitted: List[NNumber] = []
+        numbers_kansuji_kurai_splitted: list[NNumber] = []
         for number in numbers_notation_type_splitted:
             numbers_kansuji_kurai_splitted += self.split_number_by_kansuji_kurai(number)
 

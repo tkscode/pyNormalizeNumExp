@@ -1,6 +1,5 @@
 """時間系以外の数値表現の抽出・正規化処理を定義するモジュール."""
 from copy import deepcopy
-from typing import List
 
 from pynormalizenumexp.expression.base import INF, NumberModifier
 from pynormalizenumexp.expression.numerical import NumericalExpression, NumericalPattern
@@ -57,7 +56,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
             expr.set_total_number_of_place_holder()
             expr.set_len_of_after_final_place_holder()
 
-    def normalize_number(self, text: str) -> List[NNumber]:
+    def normalize_number(self, text: str) -> list[NNumber]:
         """テキストから数値表現を抽出する.
 
         Parameters
@@ -67,34 +66,34 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             抽出した数値表現
         """
         return self.number_normalizer.process(text)
 
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[NumericalExpression]:  # type: ignore[override]
+    def numbers2expressions(self, numbers: list[NNumber]) -> list[NumericalExpression]:  # type: ignore[override]
         """抽出した数値表現を変換する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出した数値表現
 
         Returns
         -------
-        List[NumericalExpression]
+        list[NumericalExpression]
             変換後のオブジェクト
         """
         return [NumericalExpression(number) for number in numbers]
 
-    def revise_expr_by_matching_limited_expression(self, exprs: List[NumericalExpression],  # type: ignore[override]
+    def revise_expr_by_matching_limited_expression(self, exprs: list[NumericalExpression],  # type: ignore[override]
                                                    expr_id: int,
-                                                   matching_expr: NumericalPattern) -> List[NumericalExpression]:
+                                                   matching_expr: NumericalPattern) -> list[NumericalExpression]:
         """マッチした数値表現の補正を行う.
 
         Parameters
         ----------
-        exprs : List[NumericalExpression]
+        exprs : list[NumericalExpression]
             抽出された数値表現
         expr_id : int
             どの数値表現に着目するかのID（インデックス）
@@ -103,7 +102,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[NumericalExpression]
+        list[NumericalExpression]
             補正済みの数値表現
         """
         # 特殊なタイプをここで例外処理
@@ -121,13 +120,13 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         return new_exprs
 
-    def do_option_wari(self, num_exprs: List[NumericalExpression], expr_id: int, matching_expr: NumericalPattern) \
-            -> List[NumericalExpression]:
+    def do_option_wari(self, num_exprs: list[NumericalExpression], expr_id: int, matching_expr: NumericalPattern) \
+            -> list[NumericalExpression]:
         """日本語の割合表記の補正を行う.
 
         Parameters
         ----------
-        num_exprs : List[NumericalExpression]
+        num_exprs : list[NumericalExpression]
             抽出された数値表現
         expr_id : int
             どの数値表現に着目するかのID（インデックス）
@@ -136,7 +135,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[NumericalExpression]
+        list[NumericalExpression]
             補正済みの数値表現
         """
         new_num_exprs = deepcopy(num_exprs)
@@ -160,7 +159,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
 
         # マージした表現を削除する
         for _ in range(2, len(matching_expr.pattern), 2):
-            del(new_num_exprs[expr_id+1])
+            del new_num_exprs[expr_id+1]
 
         return new_num_exprs
 
@@ -256,17 +255,17 @@ class NumericalExpressionNormalizer(BaseNormalizer):
         return new_expr
 
     def delete_not_expression(self,  # type: ignore[override]
-                              exprs: List[NumericalExpression]) -> List[NumericalExpression]:
+                              exprs: list[NumericalExpression]) -> list[NumericalExpression]:
         """数値表現が空のものを削除する.
 
         Parameters
         ----------
-        exprs : List[NumericalExpression]
+        exprs : list[NumericalExpression]
             抽出された数値表現表現
 
         Returns
         -------
-        List[NumericalExpression]
+        list[NumericalExpression]
             削除後の数値表現表現
         """
         for i in range(len(exprs)):
@@ -276,7 +275,7 @@ class NumericalExpressionNormalizer(BaseNormalizer):
         return [expr for expr in exprs if expr]
 
     def fix_by_range_expression(self,  # type: ignore[override]
-                                text: str, exprs: List[NumericalExpression]) -> List[NumericalExpression]:
+                                text: str, exprs: list[NumericalExpression]) -> list[NumericalExpression]:
         """数値の範囲表現の修正を行う.
 
         Parameters
