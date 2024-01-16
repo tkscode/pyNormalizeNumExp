@@ -1,6 +1,5 @@
 """相対時間の抽出・正規化処理を定義するモジュール."""
 from copy import deepcopy
-from typing import List, Tuple
 
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
 from pynormalizenumexp.expression.reltime import ReltimeExpression, ReltimePattern
@@ -13,8 +12,8 @@ from .number_normalizer import NumberNormalizer
 class ReltimeExpressionNormalizer(BaseNormalizer):
     """相対時間の抽出・正規化を行うクラス."""
 
-    limited_expressions: List[ReltimePattern]
-    prefix_counters: List[ReltimePattern]
+    limited_expressions: list[ReltimePattern]
+    prefix_counters: list[ReltimePattern]
 
     def __init__(self, dict_loader: DictLoader) -> None:
         """コンストラクタ.
@@ -60,7 +59,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
             expr.set_total_number_of_place_holder()
             expr.set_len_of_after_final_place_holder()
 
-    def normalize_number(self, text: str) -> List[NNumber]:
+    def normalize_number(self, text: str) -> list[NNumber]:
         """テキストから数値表現を抽出する.
 
         Parameters
@@ -70,22 +69,22 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             抽出した数値表現
         """
         return self.number_normalizer.process(text)
 
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[ReltimeExpression]:  # type: ignore[override]
+    def numbers2expressions(self, numbers: list[NNumber]) -> list[ReltimeExpression]:  # type: ignore[override]
         """抽出した数値表現を相対時間表現のオブジェクトに変換する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出した数値表現
 
         Returns
         -------
-        List[ReltimeExpression]
+        list[ReltimeExpression]
             相対時間表現のオブジェクト
         """
         return [ReltimeExpression(number) for number in numbers]
@@ -133,14 +132,14 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return new_reltime_expr
 
-    def revise_expr_by_matching_limited_expression(self, exprs: List[ReltimeExpression],  # type: ignore[override]
+    def revise_expr_by_matching_limited_expression(self, exprs: list[ReltimeExpression],  # type: ignore[override]
                                                    expr_id: int,
-                                                   matching_expr: ReltimePattern) -> List[ReltimeExpression]:
+                                                   matching_expr: ReltimePattern) -> list[ReltimeExpression]:
         """マッチした相対時間表現の補正を行う.
 
         Parameters
         ----------
-        exprs : List[ReltimeExpression]
+        exprs : list[ReltimeExpression]
             抽出された相対時間表現
         expr_id : int
             どの相対時間表現に着目するかのID（インデックス）
@@ -149,7 +148,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        List[ReltimeExpression]
+        list[ReltimeExpression]
             補正済みの相対時間表現
         """
         new_exprs = deepcopy(exprs)
@@ -264,17 +263,17 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         return new_expr
 
     def delete_not_expression(self,  # type: ignore[override]
-                              exprs: List[ReltimeExpression]) -> List[ReltimeExpression]:
+                              exprs: list[ReltimeExpression]) -> list[ReltimeExpression]:
         """時間オブジェクトがNullの相対時間表現を削除する.
 
         Parameters
         ----------
-        exprs : List[ReltimeExpression]
+        exprs : list[ReltimeExpression]
             抽出された相対時間表現
 
         Returns
         -------
-        List[ReltimeExpression]
+        list[ReltimeExpression]
             削除後の相対時間表現
         """
         for i in range(len(exprs)):
@@ -285,22 +284,22 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         return [expr for expr in exprs if expr]
 
     def fix_by_range_expression(self,  # type: ignore[override] # noqa: C901
-                                text: str, exprs: List[ReltimeExpression]) -> List[ReltimeExpression]:
+                                text: str, exprs: list[ReltimeExpression]) -> list[ReltimeExpression]:
         """相対時間の範囲表現の修正を行う.
 
         Parameters
         ----------
         text : str
             元のテキスト
-        exprs : List[ReltimeExpression]
+        exprs : list[ReltimeExpression]
             抽出された相対時間表現
 
         Returns
         -------
-        List[ReltimeExpression]
+        list[ReltimeExpression]
             修正後の相対時間表現
         """
-        def is_registered(number: NNumber, reltime_exprs: List[ReltimeExpression]) -> bool:
+        def is_registered(number: NNumber, reltime_exprs: list[ReltimeExpression]) -> bool:
             for expr in reltime_exprs:
                 if expr.position_start <= number.position_start and number.position_end <= expr.position_end:
                     return True
@@ -327,7 +326,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         exprs = [expr for expr in exprs if expr]
 
         # 今日、明日、来年だけの表現を抽出する
-        add_reltime_exprs: List[ReltimeExpression] = []
+        add_reltime_exprs: list[ReltimeExpression] = []
         for prefix_counter in self.prefix_counters:
             try:
                 idx = text.index(prefix_counter.pattern)
@@ -354,7 +353,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         return exprs
 
     def do_option_han(self, reltime_expr: ReltimeExpression,  # noqa: C901
-                      corresponding_time_position: str) -> Tuple[NTime, NTime]:
+                      corresponding_time_position: str) -> tuple[NTime, NTime]:
         """「半」表現の場合の日付計算を行う.
 
         Parameters
@@ -417,7 +416,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_rel, val_ub_rel
 
-    def do_time_about(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_about(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """about表現の場合の日付計算を行う.
 
         Parameters
@@ -427,7 +426,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         # 「およそ1000年前」「2か月前頃」など
@@ -455,7 +454,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_rel, val_ub_rel
 
-    def do_time_zenhan(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_zenhan(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """前半表現の場合の日付計算を行う.
 
         Parameters
@@ -465,7 +464,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb_abs = reltime_expr.value_lower_bound_abs
@@ -492,7 +491,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_abs, val_ub_abs
 
-    def do_time_kouhan(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_kouhan(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """後半表現の場合の日付計算を行う.
 
         Parameters
@@ -502,7 +501,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb_abs = reltime_expr.value_lower_bound_abs
@@ -529,7 +528,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_abs, val_ub_abs
 
-    def do_time_nakaba(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_nakaba(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """半ば表現の場合の日付計算を行う.
 
         Parameters
@@ -539,7 +538,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb_abs = reltime_expr.value_lower_bound_abs
@@ -568,7 +567,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_abs, val_ub_abs
 
-    def do_time_joujun(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_joujun(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """上旬表現の場合の日付計算を行う.
 
         Parameters
@@ -578,7 +577,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb_abs = reltime_expr.value_lower_bound_abs
@@ -590,7 +589,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_abs, val_ub_abs
 
-    def do_time_tyujun(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_tyujun(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """中旬表現の場合の日付計算を行う.
 
         Parameters
@@ -600,7 +599,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb_abs = reltime_expr.value_lower_bound_abs
@@ -612,7 +611,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         return val_lb_abs, val_ub_abs
 
-    def do_time_gejun(self, reltime_expr: ReltimeExpression) -> Tuple[NTime, NTime]:
+    def do_time_gejun(self, reltime_expr: ReltimeExpression) -> tuple[NTime, NTime]:
         """下旬表現の場合の日付計算を行う.
 
         Parameters
@@ -622,7 +621,7 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
 
         Returns
         -------
-        Tuple[NTime, NTime]
+        tuple[NTime, NTime]
             計算後の日付情報
         """
         val_lb_abs = reltime_expr.value_lower_bound_abs

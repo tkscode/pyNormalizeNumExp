@@ -1,6 +1,6 @@
 """各種数値表現の抽出・正規化を行う処理の定義モジュール."""
 from dataclasses import asdict, dataclass, field
-from typing import List, Optional, Union, cast
+from typing import Optional, Union, cast
 
 from .expression.abstime import AbstimeExpression
 from .expression.base import NormalizedExpression, NTime
@@ -71,7 +71,7 @@ class Expression:
     value_upper_bound_abs: Optional[Time] = None
     value_lower_bound_rel: Optional[Time] = None
     value_upper_bound_rel: Optional[Time] = None
-    options: List[str] = field(default_factory=list)
+    options: list[str] = field(default_factory=list)
 
 
 class NormalizeNumexp(object):
@@ -93,7 +93,7 @@ class NormalizeNumexp(object):
         self.duration_expr_normalizer = DurationExpressionNormalizer(dict_loader)
         self.inappropriate_expr_remover = InappropriateExpressionRemover(dict_loader)
 
-    def normalize(self, text: str, as_dict: bool = False) -> Union[List[Expression], List[ReturnExpressionDict]]:
+    def normalize(self, text: str, as_dict: bool = False) -> Union[list[Expression], list[ReturnExpressionDict]]:
         """各種数値表現の抽出・正規化を行う.
 
         Parameters
@@ -105,14 +105,14 @@ class NormalizeNumexp(object):
 
         Returns
         -------
-        List[Expression]
+        Union[list[Expression], list[ReturnExpressionDict]]
             抽出・正規化した数値表現
         """
         # 各normalizerで数値表現の抽出・正規化を行う
-        numerical_exprs = cast(List[NumericalExpression], self.numerical_expr_normalizer.process(text))
-        abstime_exprs = cast(List[AbstimeExpression], self.abstime_expr_normalizer.process(text))
-        reltime_exprs = cast(List[ReltimeExpression], self.reltime_expr_normalizer.process(text))
-        duration_exprs = cast(List[DurationExpression], self.duration_expr_normalizer.process(text))
+        numerical_exprs = cast(list[NumericalExpression], self.numerical_expr_normalizer.process(text))
+        abstime_exprs = cast(list[AbstimeExpression], self.abstime_expr_normalizer.process(text))
+        reltime_exprs = cast(list[ReltimeExpression], self.reltime_expr_normalizer.process(text))
+        duration_exprs = cast(list[DurationExpression], self.duration_expr_normalizer.process(text))
 
         # 不適切な数値表現を削除する
         numerical_exprs, abstime_exprs, reltime_exprs, duration_exprs \
@@ -128,25 +128,25 @@ class NormalizeNumexp(object):
 
         return exprs
 
-    def merge_expressions(self, numerical_exprs: List[NumericalExpression], abstime_exprs: List[AbstimeExpression],
-                          reltime_exprs: List[ReltimeExpression], duration_exprs: List[DurationExpression]) \
-            -> List[Expression]:
+    def merge_expressions(self, numerical_exprs: list[NumericalExpression], abstime_exprs: list[AbstimeExpression],
+                          reltime_exprs: list[ReltimeExpression], duration_exprs: list[DurationExpression]) \
+            -> list[Expression]:
         """抽出した各種数値表現を統一的な数値表現オブジェクトに変換する.
 
         Parameters
         ----------
-        numerical_exprs : List[NumericalExpression]
+        numerical_exprs : list[NumericalExpression]
             数量表現
-        abstime_exprs : List[AbstimeExpression]
+        abstime_exprs : list[AbstimeExpression]
             絶対時間表現
-        reltime_exprs : List[ReltimeExpression]
+        reltime_exprs : list[ReltimeExpression]
             相対時間表現
-        duration_exprs : List[DurationExpression]
+        duration_exprs : list[DurationExpression]
             期間表現
 
         Returns
         -------
-        List[Expression]
+        list[Expression]
             変換後の数値表現
         """
         def conv_time_obj(bound: Optional[NTime]) -> Optional[Time]:
@@ -156,7 +156,7 @@ class NormalizeNumexp(object):
             return Time(year=bound.year, month=bound.month, day=bound.day,
                         hour=bound.hour, minute=bound.minute, second=bound.second)
 
-        total_exprs: List[Expression] = []
+        total_exprs: list[Expression] = []
 
         for numerical_expr in numerical_exprs:
             expr = Expression()
@@ -215,7 +215,7 @@ class NormalizeNumexp(object):
 
         return list(sorted(total_exprs, key=lambda x: x.position_start))
 
-    def show_options(self, expr: NormalizedExpression) -> List[str]:
+    def show_options(self, expr: NormalizedExpression) -> list[str]:
         """optionsを整理.
 
         Parameters
@@ -225,10 +225,10 @@ class NormalizeNumexp(object):
 
         Returns
         -------
-        List[str]
+        list[str]
             整理したoptions
         """
-        options: List[str] = []
+        options: list[str] = []
         if expr.ordinary:
             options.append("ordinary")
 

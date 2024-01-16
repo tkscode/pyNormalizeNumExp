@@ -1,6 +1,6 @@
 """数値表現のノーマライザ定義モジュール."""
 from copy import deepcopy
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pynormalizenumexp.expression.base import NNumber
 from pynormalizenumexp.utility.dict_loader import DictLoader
@@ -33,7 +33,7 @@ class NumberNormalizer(object):
         else:
             raise ValueError(f'Not supported language "{dict_loader.language}"')
 
-    def process(self, input: str, do_fix_symbol: bool = True) -> List[NNumber]:
+    def process(self, input: str, do_fix_symbol: bool = True) -> list[NNumber]:
         """テキストから数値表現を抽出し、正規化する.
 
         Parameters
@@ -46,7 +46,7 @@ class NumberNormalizer(object):
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             抽出・正規化した数値表現
         """
         # 入力文に含まれる数値表現を抽出
@@ -128,19 +128,19 @@ class NumberNormalizer(object):
             and self.prefix_3digits_is_arabic(number_string2) \
             and (len(number_string2) == 3 or not self.digit_utility.is_arabic(number_string2[3]))
 
-    def join_numbers_by_comma(self, text: str, numbers: List[NNumber]) -> List[NNumber]:
+    def join_numbers_by_comma(self, text: str, numbers: list[NNumber]) -> list[NNumber]:
         """コンマで連結できる数値表現があれば連結する.
 
         Parameters
         ----------
         text : str
             元のテキスト
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             数値表現
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             コンマで連結したものを含む数値表現
         """
         new_numbers = deepcopy(numbers)
@@ -162,21 +162,21 @@ class NumberNormalizer(object):
             new_numbers[i-1].original_expr += char_intermediate + new_numbers[i].original_expr
             # i番目は不要なので削除する
             # -> iはnew_numbersの後ろから見ているので削除しても整合性は保たれる
-            del(new_numbers[i])
+            del new_numbers[i]
 
         return new_numbers
 
-    def convert_number(self, numbers: List[NNumber]) -> List[NNumber]:
+    def convert_number(self, numbers: list[NNumber]) -> list[NNumber]:
         """数値表現を数値に変換する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             変換対象の数値表現
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             変換後の数値表現
         """
         new_numbers = deepcopy(numbers)
@@ -306,19 +306,19 @@ class NumberNormalizer(object):
 
         return new_number
 
-    def fix_numbers_by_su(self, text: str, numbers: List[NNumber]) -> List[NNumber]:
+    def fix_numbers_by_su(self, text: str, numbers: list[NNumber]) -> list[NNumber]:
         """抽出した各数値表現中に含まれる「数」表現を数値に変換する.
 
         Parameters
         ----------
         text : str
             元のテキスト
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             変換対象の抽出された数値表現
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             変換後の数値表現
         """
         new_numbers = deepcopy(numbers)
@@ -329,7 +329,7 @@ class NumberNormalizer(object):
                 new_number = self.fix_intermediate_su(text, new_numbers[i], new_numbers[i+1])
                 if new_number != new_numbers[i]:
                     new_numbers[i] = new_number
-                    del(new_numbers[i+1])
+                    del new_numbers[i+1]
 
             new_numbers[i] = self.fix_suffix_su(text, new_numbers[i])
 
@@ -356,17 +356,17 @@ class NumberNormalizer(object):
 
         return True
 
-    def remove_only_kansuji_kurai_man(self, numbers: List[NNumber]) -> List[NNumber]:
+    def remove_only_kansuji_kurai_man(self, numbers: list[NNumber]) -> list[NNumber]:
         """数値文字列に「万」以上の桁区切り文字しかないものを削除する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出された数値表現
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             削除処理後の数値表現
         """
         new_numbers = deepcopy(numbers)
@@ -377,20 +377,20 @@ class NumberNormalizer(object):
         # 逆順にしていたのでもと順番に戻す
         return [number for number in new_numbers if number]
 
-    def remove_unnecessary_data(self, numbers: List[NNumber]) -> List[NNumber]:
+    def remove_unnecessary_data(self, numbers: list[NNumber]) -> list[NNumber]:
         """重複するような不要なデータを削除する.
 
         Parameters
         ----------
-        numbers : List[NNumber]
+        numbers : list[NNumber]
             抽出された数値表現
 
         Returns
         -------
-        List[NNumber]
+        list[NNumber]
             削除処理後の数値表現
         """
-        new_numbers: List[NNumber] = []
+        new_numbers: list[NNumber] = []
         position_start = -1
         position_end = -1
         for number in numbers:

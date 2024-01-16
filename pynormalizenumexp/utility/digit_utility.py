@@ -1,6 +1,6 @@
 """文字列に関する共通処理モジュール."""
 import re
-from typing import Dict, Optional
+from typing import Optional
 
 from pynormalizenumexp.expression.base import NotationType
 
@@ -20,9 +20,9 @@ class DigitUtility(object):
         """
         self.dict_loader = dict_loader
 
-        self.str_to_notation_type: Dict[str, NotationType] = {}
-        self.kansuji_09_to_value: Dict[str, int] = {}
-        self.kansuji_kurai_to_power_val: Dict[str, int] = {}
+        self.str_to_notation_type: dict[str, NotationType] = {}
+        self.kansuji_09_to_value: dict[str, int] = {}
+        self.kansuji_kurai_to_power_val: dict[str, int] = {}
 
     def init_kansuji(self) -> None:
         """漢数字に関する初期化処理."""

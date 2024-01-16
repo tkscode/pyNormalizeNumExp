@@ -1,5 +1,4 @@
 """数値文字列を数値に変換する処理の基底クラス定義モジュール."""
-from typing import List, Tuple
 from unicodedata import normalize
 
 from pynormalizenumexp.utility.digit_utility import DigitUtility
@@ -70,7 +69,7 @@ class NumberConverter(object):
         """
         return "".join(["" if self.digit_utility.is_comma(char) else char for char in number_string])
 
-    def split_by_kansuji_kurai(self, number_string: str) -> List[Tuple[str, str]]:
+    def split_by_kansuji_kurai(self, number_string: str) -> list[tuple[str, str]]:
         """文字列を位表記で分割する.
 
         Parameters
@@ -80,7 +79,7 @@ class NumberConverter(object):
 
         Returns
         -------
-        List[Tuple[str, str]]
+        list[tuple[str, str]]
             分割後の文字列
         """
         splitted_number_string = []

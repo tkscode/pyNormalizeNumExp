@@ -1,8 +1,9 @@
+# flake8: noqa
 import pytest
 
 from pynormalizenumexp.expression.base import NNumber, NotationType
-from pynormalizenumexp.utility.dict_loader import DictLoader
 from pynormalizenumexp.normalizer.number_normalizer import NumberNormalizer
+from pynormalizenumexp.utility.dict_loader import DictLoader
 
 
 @pytest.fixture(scope="class")

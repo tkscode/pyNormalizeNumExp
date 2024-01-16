@@ -1,6 +1,6 @@
 """相対時間の表現定義モジュール."""
 import typing
-from typing import List, Union
+from typing import Union
 
 from .base import INF, BasePattern, NNumber, NormalizedExpression, NTime
 
@@ -12,8 +12,8 @@ class ReltimePattern(BasePattern):
         """コンストラクタ."""
         super().__init__()
 
-        self.corresponding_time_position: List[str] = []
-        self.process_type: List[str] = []
+        self.corresponding_time_position: list[str] = []
+        self.process_type: list[str] = []
 
     def __eq__(self, o: object) -> bool:  # noqa: D105
         return isinstance(o, ReltimePattern) and super().__eq__(o) \

@@ -1,10 +1,11 @@
+# flake8: noqa
 import math
 import pytest
 
 from pynormalizenumexp.expression.base import NNumber
+from pynormalizenumexp.normalizer.symbol_fixer import SymbolFixer
 from pynormalizenumexp.utility.dict_loader import DictLoader
 from pynormalizenumexp.utility.digit_utility import DigitUtility
-from pynormalizenumexp.normalizer.symbol_fixer import SymbolFixer
 
 
 @pytest.fixture(scope="class")

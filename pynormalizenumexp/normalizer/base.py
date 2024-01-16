@@ -1,6 +1,6 @@
 """各種ノーマライザの基底クラス定義モジュール."""
 from copy import deepcopy
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Union
 
 from pynormalizenumexp.expression.base import BasePattern, NNumber, NormalizedExpression, NumberModifier
 from pynormalizenumexp.utility.dict_loader import DictLoader
@@ -23,20 +23,20 @@ class BaseNormalizer(object):
 
         self.limited_expressions: Sequence[BasePattern] = []
         self.prefix_counters: Sequence[BasePattern] = []
-        self.prefix_number_modifier: List[NumberModifier] = []
-        self.suffix_number_modifier: List[NumberModifier] = []
+        self.prefix_number_modifier: list[NumberModifier] = []
+        self.suffix_number_modifier: list[NumberModifier] = []
 
-        self.limited_expression_patterns: Dict[str, int] = dict()
-        self.prefix_counter_patterns: Dict[str, int] = dict()
-        self.prefix_number_modifier_patterns: Dict[str, int] = dict()
-        self.suffix_number_modifier_patterns: Dict[str, int] = dict()
+        self.limited_expression_patterns: dict[str, int] = dict()
+        self.prefix_counter_patterns: dict[str, int] = dict()
+        self.prefix_number_modifier_patterns: dict[str, int] = dict()
+        self.suffix_number_modifier_patterns: dict[str, int] = dict()
 
     def load_dictionaries(self, limited_expr_dict_path: str, prefix_counter_dict_path: str,
                           prefix_number_modifier_dict_path: str, suffix_number_modifier_dict_path: str) -> None:
         """辞書ファイルの読み込み."""
         raise NotImplementedError()
 
-    def build_patterns(self, expressions: Sequence[Union[BasePattern, NormalizedExpression]]) -> Dict[str, int]:
+    def build_patterns(self, expressions: Sequence[Union[BasePattern, NormalizedExpression]]) -> dict[str, int]:
         """パターンオブジェクトからパターン文字列をパターンIDのマップを作成する.
 
         Parameters
@@ -46,12 +46,12 @@ class BaseNormalizer(object):
 
         Returns
         -------
-        Dict[str, int]
+        dict[str, int]
             パターン文字列ごとのパターンIDのマップ
         """
         return {expr.pattern: i for i, expr in enumerate(expressions)}
 
-    def process(self, text: str) -> List[NormalizedExpression]:
+    def process(self, text: str) -> list[NormalizedExpression]:
         """数値表現の抽出を正規化を行う.
 
         Parameters
@@ -115,11 +115,11 @@ class BaseNormalizer(object):
 
         return expressions
 
-    def normalize_number(self, text: str) -> List[NNumber]:
+    def normalize_number(self, text: str) -> list[NNumber]:
         """テキストから数値表現を抽出する."""
         raise NotImplementedError()
 
-    def numbers2expressions(self, numbers: List[NNumber]) -> List[NormalizedExpression]:
+    def numbers2expressions(self, numbers: list[NNumber]) -> list[NormalizedExpression]:
         """数値表現を適切な表現（絶対時間など）に変換する."""
         raise NotImplementedError()
 
@@ -171,7 +171,7 @@ class BaseNormalizer(object):
 
     def revise_expr_by_matching_limited_expression(self, exprs: Sequence[NormalizedExpression], expr_id: int,
                                                    matching_expr: BasePattern) \
-            -> List[NormalizedExpression]:
+            -> list[NormalizedExpression]:
         """マッチした数値表現の補正を行う."""
         raise NotImplementedError()
 
@@ -233,21 +233,21 @@ class BaseNormalizer(object):
 
     def normalize_limited_expression(self, replaced_text: str,
                                      exprs: Sequence[NormalizedExpression], expr_id: int) \
-            -> Tuple[int, Optional[List[NormalizedExpression]]]:
+            -> tuple[int, Optional[list[NormalizedExpression]]]:
         """抽出された数値表現の正規化.
 
         Parameters
         ----------
         replaced_text : str
             数値文字列がマスクされた元のテキスト
-        exprs : List[NormalizedExpression]
+        exprs : Sequence[NormalizedExpression]
             抽出された数値表現
         expr_id : int
             どの数値表現に着目するかのID（インデックス）
 
         Returns
         -------
-        Tuple[int, Optional[List[NormalizedExpression]]]
+        tuple[int, Optional[list[NormalizedExpression]]]
             マッチしたパターン辞書のIDと正規化された数値表現（マッチするものがなければNoneを返す）
         """
         # どの表現パターンにマッチするか検索する
@@ -337,25 +337,25 @@ class BaseNormalizer(object):
             expr, self.suffix_number_modifier[matching_pattern_id])
 
     def fix_by_range_expression(self, text: str, exprs: Sequence[NormalizedExpression]) \
-            -> List[NormalizedExpression]:
+            -> list[NormalizedExpression]:
         """範囲表現の修正を行う."""
         raise NotImplementedError()
 
-    def delete_not_expression(self, exprs: Sequence[NormalizedExpression]) -> List[NormalizedExpression]:
+    def delete_not_expression(self, exprs: Sequence[NormalizedExpression]) -> list[NormalizedExpression]:
         """特定条件下の数値表現を削除する."""
         raise NotImplementedError()
 
-    def fix_kara_expression(self, exprs: List[NormalizedExpression]) -> List[NormalizedExpression]:
+    def fix_kara_expression(self, exprs: list[NormalizedExpression]) -> list[NormalizedExpression]:
         """「から」表現のみがついてしまうのを修正する.
 
         Parameters
         ----------
-        exprs : List[NormalizedExpression]
+        exprs : list[NormalizedExpression]
             抽出された数値表現
 
         Returns
         -------
-        List[NormalizedExpression]
+        list[NormalizedExpression]
             修正後の数値表現
         """
         new_exprs = deepcopy(exprs)
@@ -364,23 +364,23 @@ class BaseNormalizer(object):
                 expr.original_expr = expr.original_expr[2:]
                 expr.position_start += 2
                 # optionsに入っているkara_prefixを削除
-                del(expr.options[0])
+                del expr.options[0]
             elif expr.original_expr.endswith("から"):
                 expr.original_expr = expr.original_expr[:-2]
                 expr.position_end -= 2
                 # optionsに入っているkara_suffixを削除
-                del(expr.options[-1])
+                del expr.options[-1]
 
             new_exprs[i] = expr
 
         return new_exprs
 
-    def have_kara_prefix(self, options: List[str]) -> bool:
+    def have_kara_prefix(self, options: list[str]) -> bool:
         """抽出した数値表現のオプションに kara_prefix が含まれているかをチェックする.
 
         Parameters
         ----------
-        options : List[str]
+        options : list[str]
             チェック対象のオプション
 
         Returns
@@ -390,12 +390,12 @@ class BaseNormalizer(object):
         """
         return "kara_prefix" in options
 
-    def have_kara_suffix(self, options: List[str]) -> bool:
+    def have_kara_suffix(self, options: list[str]) -> bool:
         """抽出した数値表現のオプションに kara_suffix が含まれているかをチェックする.
 
         Parameters
         ----------
-        options : List[str]
+        options : list[str]
             チェック対象のオプション
 
         Returns
@@ -405,19 +405,19 @@ class BaseNormalizer(object):
         """
         return "kara_suffix" in options
 
-    def merge_options(self, options1: List[str], options2: List[str]) -> List[str]:
+    def merge_options(self, options1: list[str], options2: list[str]) -> list[str]:
         """範囲表現のオプションをマージする.
 
         Parameters
         ----------
-        options1 : List[str]
+        options1 : list[str]
             片方の範囲表現のオプション
-        options2 : List[str]
+        options2 : list[str]
             もう片方の範囲表現のオプション
 
         Returns
         -------
-        List[str]
+        list[str]
             マージしたオプション
         """
         # TODO kara_suffixを全部削除して良いかどうかは要検討
