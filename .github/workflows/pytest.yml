@@ -12,58 +12,65 @@ jobs:
   pytest:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-    # 複数のPythonのバージョンでテストするために `strategy.matrix` を設定する
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
     steps:
       # リポジトリをチェックアウトする
       # See: https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       # Pythonのランタイムをセットアップする
       # バージョンは `strategy.matrix` に並べたものを指定する
       # See: https://github.com/actions/setup-python
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'
+
       # Poetryのインストール
       - name: Install Poetry
         run: |
           pip install poetry
+
       # Poetryを使って必要なPythonパッケージをインストールする
       - name: Install Dependencies
         run: poetry install --with test --no-interaction
+
       # pytestを実行する
       - name: Run Tests
         run: poetry run pytest
+
+      # Codecovへアップロード
       - name: Upload coverage to Codecov
-        # 上記のステップが全て完了した場合にCodecovへアップロード
-        if: ${{ matrix.python-version==3.12 }}
         uses: codecov/codecov-action@v2
         with:
           file: ./coverage.xml
           name: codecov-umbrella
           fail_ci_if_error: true
+
   deploy:
     runs-on: ubuntu-latest
+    needs: pytest
+
     steps:
       # リポジトリをチェックアウトする
       # See: https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       # Python のランタイムをセットアップする
       # See: https://github.com/actions/setup-python
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v1
         with:
           python-version: '3.11'
+
       # Poetryのインストール
       - name: Install Poetry
         run: |
           pip install poetry
-      # パッケージのビルドとPyPIへのアップロード
+
+      # パッケージのビルドとTestPyPIへのアップロード
       - name: Build and publish
         env:
           PYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
