@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pynormalizenumexp"
-version = "0.3.2"
+version = "0.3.3"
 description = "NormalizeNumExp for Python"
 authors = ["tkscode"]
 license = "BSD 3-Clause"
