@@ -1,4 +1,4 @@
-name: PyTest and upload Python Package to TestPyPI
+name: build test
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  deploy:
+  test:
+    name: Run tests with pytest
     runs-on: ubuntu-latest
 
     steps:
@@ -15,7 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Python のランタイムをセットアップする
+      # Pythonのランタイムをセットアップする
+      # バージョンは `strategy.matrix` に並べたものを指定する
       # See: https://github.com/actions/setup-python
       - name: Set up Python
         uses: actions/setup-python@v1
@@ -43,6 +45,26 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをチェックアウトする
+      # See: https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Python のランタイムをセットアップする
+      # See: https://github.com/actions/setup-python
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.11'
+
+      # Poetryのインストール
+      - name: Install Poetry
+        run: |
+          pip install poetry
 
       # パッケージのビルドとTestPyPIへのアップロード
       - name: Build and publish
