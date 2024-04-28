@@ -285,6 +285,34 @@ class TestNormalizeNumexp:
         ]
         assert res == expect
 
+    def test_normalize_custom_dict(self):
+        normalize_numexp = NormalizeNumexp("ja", "./tests/resources/custom_expression.json")
+        res = normalize_numexp.normalize("今日は2024年5月1日（祝）です")
+        expect = [
+            Expression(
+                type="reltime", original_expr="今日", position_start=0, position_end=2, counter="none",
+                value_lower_bound_abs=Time(INF, INF, INF, INF, INF, INF),
+                value_upper_bound_abs=Time(-INF, -INF, -INF, -INF, -INF, -INF),
+                value_lower_bound_rel=Time(INF, INF, 0, INF, INF, INF),
+                value_upper_bound_rel=Time(-INF, -INF, 0, -INF, -INF, -INF), options=[]
+            ),
+            Expression(
+                type="abstime", original_expr="2024年5月1日（祝）", position_start=3, position_end=15, counter="none",
+                value_lower_bound=Time(2024, 5, 1, INF, INF, INF),
+                value_upper_bound=Time(2024, 5, 1, -INF, -INF, -INF), options=["Holiday"]
+            )
+        ]
+        assert res == expect
+
+        res = normalize_numexp.normalize("メールに2ファイル添付する")
+        expect = [
+            Expression(
+                type="numerical", original_expr="2ファイル", position_start=4, position_end=9, counter="ファイル",
+                value_lower_bound=2, value_upper_bound=2, options=[]
+            )
+        ]
+        assert res == expect
+
     def test_normalize_return_dict(self, normalize_numexp: NormalizeNumexp):
         res = normalize_numexp.normalize("15年前、戦争があった", as_dict=True)
         expect = [

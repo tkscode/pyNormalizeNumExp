@@ -1,0 +1,27 @@
+[
+  {
+    "expr_type": "abstime:limited",
+    "value": {
+      "pattern": "年ǂ月ǂ日（祝）",
+      "corresponding_time_position": [
+        "y",
+        "m",
+        "d"
+      ],
+      "process_type": [],
+      "ordinary": false,
+      "option": "Holiday"
+    }
+  },
+  {
+    "expr_type": "number:limited",
+    "value": {
+      "pattern": "ファイル",
+      "counter": "ファイル",
+      "SI_prefix": 0,
+      "optional_power_of_ten": 0,
+      "ordinary": false,
+      "option": ""
+    }
+  }
+]

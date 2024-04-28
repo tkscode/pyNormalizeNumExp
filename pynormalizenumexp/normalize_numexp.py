@@ -77,15 +77,17 @@ class Expression:
 class NormalizeNumexp(object):
     """各種数値表現の抽出・正規化を行うクラス."""
 
-    def __init__(self, language: str) -> None:
+    def __init__(self, language: str, custom_dict_file: Optional[str] = None) -> None:
         """コンストラクタ.
 
         Parameters
         ----------
         language : str
-            利用する言語（ja | en | zh）
+            利用する言語（ja）
+        custom_dict_file : Optional[str]
+            カスタム辞書のファイルパス, default None
         """
-        dict_loader = DictLoader(language)
+        dict_loader = DictLoader(language, custom_dict_file)
 
         self.numerical_expr_normalizer = NumericalExpressionNormalizer(dict_loader)
         self.abstime_expr_normalizer = AbstimeExpressionNormalizer(dict_loader)

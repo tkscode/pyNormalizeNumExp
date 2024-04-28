@@ -12,7 +12,7 @@
 
 ## Prerequisites
 
-Python >=3.9, <=3.12
+Python `>=3.9`, `<=3.12`
 
 
 ## Installation
@@ -36,12 +36,12 @@ for r in results:
 # {'type': 'numerical', 'original_expr': '4万人', 'position_start': 29, 'position_end': 32, 'counter': '人', 'value_lower_bound': 40000, 'value_upper_bound': 40000, 'value_lower_bound_abs': None, 'value_upper_bound_abs': None, 'value_lower_bound_rel': None, 'value_upper_bound_rel': None, 'options': []}
 ```
 
-+ `NormalizeNumexp`クラスの引数に言語識別子を指定します（例：日本語であれば`ja`）
-	+ 本家では英語`en`や中国語`zh`にも対応していますが、本ライブラリでは日本語のみに対応しています（将来的には英語・中国語も入れる予定です）
-+ `NormalizeNumexp`クラスの`normalize`関数に抽出・正規化対象のテキストを指定します
-	+ `as_dict`引数に`True`を指定することで、返り値の数量・時間表現のオブジェクトが`dict`型になります
-		+ 数量・時間表現のオブジェクトの属性については[`Expression`](./pynormalizenumexp/normalize_numexp.py#L19)クラスを参照してください
-+ 返り値が`dict`型の場合のデータ構造は以下の通りです
++ `NormalizeNumexp`クラスの引数に言語識別子を指定します。（例：日本語であれば`ja`）
+	+ 本家では英語`en`や中国語`zh`にも対応していますが、本ライブラリでは日本語のみに対応しています。（将来的には英語・中国語も入れる予定です）
++ `NormalizeNumexp`クラスの`normalize`関数に抽出・正規化対象のテキストを指定します。
+	+ `as_dict`引数に`True`を指定することで、返り値の数量・時間表現のオブジェクトが`dict`型になります。
+		+ 数量・時間表現のオブジェクトの属性については[`Expression`](./pynormalizenumexp/normalize_numexp.py#L19)クラスを参照してください。
++ 返り値が`dict`型の場合のデータ構造は以下の通りです。
 	```python
 	{
 		"type": str, # 表現種別（numerical：数量、abstime：絶対時間、reltime：相対時間、duration：期間）
@@ -58,20 +58,35 @@ for r in results:
 		"options": List[str]
 	}
 	```
-	+ ※1：数量・時間表現の下限値（lower）・上限値（upper）が入るが、`type`によって値の種類が変化する
+	+ ※1：数量・時間表現の下限値（lower）・上限値（upper）が入るが、`type`によって値の種類が変化します。
 		+ `numerical`の場合：`int`または`float`
 			+ 例：`15.3ポイント`の場合は下限・上限ともに`15.3`
 			+ 例：`1～2人`の場合は下限が`1`、上限が`2`
 		+ `abstime`または`duration`の場合：`Dict[str, int | float]`
-			+ 例：`2021年1月1日`の場合は下限・上限ともに`{"year": 2021, "month": 1, "day": 1}`となる（`hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になる）
-			+ 例：`3/3～3/5`の場合は下限が`{"month": 3, "day": 3}`、上限が`{"month": 3, "day": 5}`となる（`year`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になる）
-			+ 例：`100年間`の場合は下限・上限ともに`{"year": 100}`となる（`month`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になる）
+			+ 例：`2021年1月1日`の場合は下限・上限ともに`{"year": 2021, "month": 1, "day": 1}`（`hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になります）
+			+ 例：`3/3～3/5`の場合は下限が`{"month": 3, "day": 3}`、上限が`{"month": 3, "day": 5}`（`year`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になります）
+			+ 例：`100年間`の場合は下限・上限ともに`{"year": 100}`（`month`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になります）
 		+ `reltime`の場合：`None`
-	+ ※2：`type`が`reltime`の場合に絶対時間表現の下限値（lower）・上限値（upper）が入る（その他の`type`の場合は`None`になる）
-		+ 例：`昨年3月`の場合は下限・上限ともに`{"month": 3}`となる（`year`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になる）
-	+ ※3：`type`が`reltime`の場合に相対時間表現の下限値（lower）・上限値（upper）が入る（その他の`type`の場合は`None`になる）
-		+ 例：`昨年3月`の場合は下限・上限ともに`{"year": -1}`となる（`month`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になる）
-		+ 例：`15年前`の場合下限・上限ともに`{"year": -15}`となる（`month`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になる）
+	+ ※2：`type`が`reltime`の場合に絶対時間表現の下限値（lower）・上限値（upper）が入ります。（その他の`type`の場合は`None`になります）
+		+ 例：`昨年3月`の場合は下限・上限ともに`{"month": 3}`（`year`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になります）
+	+ ※3：`type`が`reltime`の場合に相対時間表現の下限値（lower）・上限値（upper）が入ります。（その他の`type`の場合は`None`になります）
+		+ 例：`昨年3月`の場合は下限・上限ともに`{"year": -1}`（`month`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になります）
+		+ 例：`15年前`の場合下限・上限ともに`{"year": -15}`（`month`, `day`, `hour`, `minute`, `second`は該当する情報がないので`inf`または`-inf`になります）
+
+### 抽出する数値表現パターンを追加したい場合
+
+[予め用意した辞書](./pynormalizenumexp/resources/dict/ja/)に定義されていないパターンの数値表現を抽出したい場合、カスタム辞書ファイルを別途定義して読み込ませることができます。
+
+任意のディレクトリにJSON形式の辞書ファイル（以下の例では`/path/to/custom_dict.json`）を定義し、`NormalizeNumexp`クラスの第2引数に辞書ファイルのパスを指定することで反映することができます。  
+辞書の作り方については[こちら](./pynormalizenumexp/resources/dict/README.md)を参照してください。
+```python
+from pynormalizenumexp.normalize_numexp import NormalizeNumexp
+
+normalizer = NormalizeNumexp("ja", "/path/to/custom_dict.json")
+
+results = normalizer.normalize("メールに2ファイル添付する", as_dict=True)
+```
+
 
 ## 免責事項
 
