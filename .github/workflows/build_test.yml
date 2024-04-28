@@ -46,6 +46,7 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
   deploy:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
