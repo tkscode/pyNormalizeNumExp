@@ -1,7 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/pynormalizenumexp.svg)](https://badge.fury.io/py/pynormalizenumexp)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pynormalizenumexp.svg)](https://pypi.org/project/pynormalizenumexp/)
 [![pytest](https://github.com/tkscode/pyNormalizeNumExp/actions/workflows/pytest.yml/badge.svg?branch=main)](https://github.com/tkscode/pyNormalizeNumExp/actions/workflows/pytest.yml)
-[![codecov](https://codecov.io/gh/tkscode/pyNormalizeNumExp/branch/main/graph/badge.svg?token=3Z0YIZV5U1)](https://codecov.io/gh/tkscode/pyNormalizeNumExp)
+[![codecov](https://codecov.io/gh/tkscode/pyNormalizeNumExp/graph/badge.svg?token=3Z0YIZV5U1)](https://codecov.io/gh/tkscode/pyNormalizeNumExp)
 
 
 # pyNormalizeNumexp

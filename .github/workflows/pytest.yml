@@ -1,4 +1,4 @@
-name: test
+name: PyTest in develop
 
 on:
   pull_request:
@@ -36,12 +36,3 @@ jobs:
       # pytestを実行する
       - name: Run Tests
         run: poetry run pytest
-
-      # Codecovへアップロード
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          name: codecov-umbrella
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
