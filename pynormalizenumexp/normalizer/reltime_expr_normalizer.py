@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from pynormalizenumexp.expression.base import INF, NNumber, NTime, NumberModifier
 from pynormalizenumexp.expression.reltime import ReltimeExpression, ReltimePattern
-from pynormalizenumexp.utility.dict_loader import DictLoader
+from pynormalizenumexp.utility.dict_loader import DictLoader, EnumExprType
 
 from .base import BaseNormalizer
 from .number_normalizer import NumberNormalizer
@@ -45,10 +45,12 @@ class ReltimeExpressionNormalizer(BaseNormalizer):
         suffix_number_modifier_dict_file : str
             接尾表現を定義した辞書ファイル名
         """
-        self.limited_expressions = self.dict_loader.load_limited_reltime_expr_dict(limited_expr_dict_file)
-        self.prefix_counters = self.dict_loader.load_limited_reltime_expr_dict(prefix_counter_dict_file)
-        self.prefix_number_modifier = self.dict_loader.load_number_modifier_dict(prefix_number_modifier_dict_file)
-        self.suffix_number_modifier = self.dict_loader.load_number_modifier_dict(suffix_number_modifier_dict_file)
+        self.limited_expressions = self.dict_loader.load_limited_reltime_expr_dict(limited_expr_dict_file, EnumExprType.RELTIME_LIMITED)
+        self.prefix_counters = self.dict_loader.load_limited_reltime_expr_dict(prefix_counter_dict_file, EnumExprType.RELTIME_COUNTER)
+        self.prefix_number_modifier = self.dict_loader.load_number_modifier_dict(prefix_number_modifier_dict_file,
+                                                                                 EnumExprType.RELTIME_PREFIX_MODIFIER)
+        self.suffix_number_modifier = self.dict_loader.load_number_modifier_dict(suffix_number_modifier_dict_file,
+                                                                                 EnumExprType.RELTIME_SUFFIX_MODIFIER)
 
         self.limited_expression_patterns = self.build_patterns(self.limited_expressions)
         self.prefix_counter_patterns = self.build_patterns(self.prefix_counters)
